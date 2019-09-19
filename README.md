@@ -42,3 +42,11 @@ You don’t have to ever use `eject`. The curated feature set is suitable for sm
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
 To learn React, check out the [React documentation](https://reactjs.org/).
+
+
+
+## Notes
+- I initially wanted to draw tiles as plain react components, got rid of that plan since it just mostly makes maniuplating the grid more complicated
+- instead, I just use a canvas element to print the grid contained in the redux-store
+- this makes it easier to print multiple layers and avoid unnecessary changes to the store
+    - e.g. updating current block and environment is handled separately

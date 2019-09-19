@@ -35,16 +35,16 @@ export interface GameState {
     }
 }
 
-const width = 500;
-const height = 1000;
+const width = 640;
+const height = 640;
 
-const tileWidth = 160;
-const tileHeight = 160;
+const tileWidth = 16;
+const tileHeight = 16;
 export const initialState: GameState = {
     status: 'MENU',
     currBlock: {
-        dir: Direction.NORTH,
-        fields: []
+        fields: [],
+        baseFields: [],
     },
     width, height,
     tileWidth, tileHeight,
@@ -70,10 +70,16 @@ export const initialState: GameState = {
 }
 
 export interface BlockState {
-    fields: {x: number, y: number}[], 
-    dir: Direction
+    fields: FieldCoords[], 
+    /** fields without translation for easier computation */
+    baseFields: FieldCoords[]
 }
 
+interface FieldCoords {
+    x: number,
+    y: number,
+    isCenter?: boolean,
+}
 
 const game = (state = initialState, action: any) => {
     return state;

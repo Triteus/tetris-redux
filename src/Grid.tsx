@@ -4,6 +4,7 @@ import { GameState, BlockState } from "./redux/store";
 import { Field } from "./models/Field";
 import { FieldType } from "./models/FieldType";
 import { useGameLoop } from "./hooks/useGameLoop";
+import { useInputHandler } from "./hooks/useInputHandler";
 
 interface Props {}
 
@@ -40,15 +41,21 @@ export const Grid: FC<Props> = props => {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
     useGameLoop();
+    useInputHandler();
     
     
     useEffect(() => {
         if (!canvasRef.current) return;
         const ctx = canvasRef.current.getContext("2d");
         if (!ctx) return;
+
+        // clear everything before redrawing
+        ctx.clearRect(0, 0, width, height);
+
+        // draw existing fields 
         grid.forEach(field => {
             if(field.getType() === FieldType.EMPTY) {
-                ctx.clearRect(
+                ctx.strokeRect(
                     field.getPos().x,
                     field.getPos().y,
                     tileWidth,
@@ -64,12 +71,13 @@ export const Grid: FC<Props> = props => {
                 }
             });
 
+            // draw current tetris-block
             block.fields.forEach((field) => {
                 ctx.fillRect(
-                    field.x,
-                    field.y,
-                    tileWidth,
-                    tileHeight,
+                    field.x + 5,
+                    field.y + 5,
+                    tileWidth - 10,
+                    tileHeight - 10,
                     );
             })
 
