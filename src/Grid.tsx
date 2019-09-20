@@ -11,7 +11,7 @@ import { useInputHandler } from "./hooks/useInputHandler";
 interface Props {}
 
 export const Grid: FC<Props> = props => {
-    const grid = useSelector<GameState, Field[]>(state => {
+    const grid = useSelector<GameState, Field[][]>(state => {
         return state.grid;
     });
 
@@ -53,23 +53,26 @@ export const Grid: FC<Props> = props => {
         ctx.clearRect(0, 0, width, height);
 
         // draw existing fields
-        grid.forEach(field => {
-            ctx.strokeRect(
-                field.getPos().x,
-                field.getPos().y,
-                tileWidth,
-                tileHeight,
-            );
-            if (field.getType() === FieldType.BLOCK) {
-                ctx.fillRect(
-                    field.getPos().x + 2,
-                    field.getPos().y + 2,
-                    tileWidth - 4,
-                    tileHeight - 4,
+        for(let cols of grid) {
+            for(let field of cols) {
+                ctx.strokeRect(
+                    field.getPos().x,
+                    field.getPos().y,
+                    tileWidth,
+                    tileHeight,
                 );
+                if (field.getType() === FieldType.BLOCK) {
+                    ctx.fillRect(
+                        field.getPos().x + 2,
+                        field.getPos().y + 2,
+                        tileWidth - 4,
+                        tileHeight - 4,
+                    );
+                }
             }
-        });
-
+        }
+     
+        
         // draw current tetris-block
         block.fields.forEach(field => {
             ctx.fillRect(

@@ -2,13 +2,14 @@ import { Field } from "./Field";
 import { FieldType } from "./FieldType";
 
 
-export function createGrid(numFields: Vec2D, fieldSize: Vec2D) {
-    const grid = [];
+export function createGrid(numFields: Vec2D, fieldSize: Vec2D): Field[][] {
+    const grid: Field[][] = [];
     const fieldWidth = fieldSize.x;
     const fieldHeight = fieldSize.y;
-    for (let posY = 0; posY < numFields.getHeight(); posY += fieldHeight) {
-        for (let posX = 0; posX < numFields.getWidth(); posX += fieldWidth) {
-            grid.push(new Field(new Vec2D(posX, posY), FieldType.EMPTY));
+    for (let posX = 0; posX < numFields.getWidth() / fieldHeight; posX += 1) {
+        grid[posX] = [];
+        for ( let posY = 0; posY < numFields.getHeight() / fieldHeight; posY += 1) {
+            grid[posX][posY] = new Field(new Vec2D(posX * fieldWidth, posY * fieldHeight), FieldType.EMPTY);
         }
     }
     return grid;

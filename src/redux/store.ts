@@ -20,7 +20,7 @@ export interface GameState {
 
     status: GameStatus, 
     currBlock: BlockState,
-    grid: Field[],
+    grid: Field[][],
     updateCounter: number,
     height: number,
     width: number,
@@ -43,8 +43,8 @@ export interface GameState {
     }
 }
 
-const width = 320;
-const height = 640;
+const width = 160;
+const height = 320;
 
 const tileWidth = 16;
 const tileHeight = 16;

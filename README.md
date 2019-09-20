@@ -53,6 +53,9 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 
 
 ## TODO
-- game over
 - add menu
 - add overlay for state
+- make controls changable
+- persist data in storage
+- add sounds
+- add some animations

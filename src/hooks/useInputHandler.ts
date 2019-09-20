@@ -1,32 +1,54 @@
-import { useEffect } from "react"
-import { useDispatch } from "react-redux";
-import { moveLeft, moveRight, rotateRight, smash, update, togglePause, reset } from "../redux/actions/update";
+import { useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+    moveLeft,
+    moveRight,
+    rotateRight,
+    smash,
+    update,
+    togglePause,
+    reset,
+} from "../redux/actions/update";
+import { GameState, GameStatus } from "../redux/store";
 
+
+// TODO Users should be able to change standard controls
 
 export const useInputHandler = () => {
-
-
     const dispatch = useDispatch();
 
+    const gameStatus = useSelector<GameState, GameStatus>(state => {
+        return state.status;
+    });
+    
+    const status = useRef<GameStatus | null>(null);
+
     useEffect(() => {
-        document.addEventListener('keydown', (event) => {
+        status.current = gameStatus;
+    }, [gameStatus])
+
+    useEffect(() => {
+        document.addEventListener("keydown", event => {
             console.log(event.key);
-            if(event.key === 'a') {
-                dispatch(moveLeft())
-            } else if(event.key === 'd') {
+            
+            if(status.current !== GameStatus.ACTIVE) {
+                return;
+            }
+            if (event.key === "a") {
+                dispatch(moveLeft());
+            } else if (event.key === "d") {
                 dispatch(moveRight());
-            } else if(event.key === 's') {
-                dispatch(update()); 
-            } else if(event.key === 'w') {
+            } else if (event.key === "s") {
+                dispatch(update());
+            } else if (event.key === "w") {
                 dispatch(rotateRight());
-            } else if(event.key === 'Control') {
+            } else if (event.key === "Control") {
                 dispatch(smash());
-            } else if(event.key === 'p') {
+            } else if (event.key === "p") {
                 dispatch(togglePause());
-            } else if(event.key === 'r') {
+            } else if (event.key === "r") {
                 dispatch(reset());
             }
-        })
+        });
     }, [dispatch]);
-
-}
+};
