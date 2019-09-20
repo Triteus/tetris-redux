@@ -1,33 +1,10 @@
 import { initialState, GameState, BlockState, GameStatus } from "../store";
 import { createRandomBlock } from "../../models/TetrisBlock";
-import { rotateRight, deleteFullRows } from "../helpers/transform";
+import { rotateRight, deleteFullRows, fillGrid, freezeBlockOnGrid, translateBlock } from "../helpers/transform";
 import { collides, collidesBottom } from "../helpers/collision";
-import { FieldType } from "../../models/FieldType";
-import { Field } from "../../models/Field";
 import { Vec2D } from "../../models/Grid";
 
-/** put block onto grid */
-function freezeBlockOnGrid(grid: Field[][], block: BlockState) {
-    return grid.map(col => {
-        return col.map(field => {
-            for (let f of block.fields) {
-                if (field.getPos().x === f.x && field.getPos().y === f.y) {
-                    return new Field(field.getPos(), FieldType.BLOCK);
-                }
-            }
-            return field;
-        });
-    });
-}
 
-function fillGrid(grid: Field[][]) {
-    return grid.map(cols => {
-        return cols.map((field) => {
-
-            return new Field(field.getPos(), FieldType.BLOCK);
-        })
-    })
-}
 
 // TODO logic dealing with calculating new state should be placed inside action creators
 // in this way, we can dispatch more specific actions and can make use of composition of small reducers
@@ -169,28 +146,30 @@ export function root(state = initialState, action: any): GameState {
                 },
             };
         case "SMASH":
-            let f = state.currBlock.fields;
+            let block = state.currBlock;
             while (
-                !collides(f, state.grid, new Vec2D(state.tileWidth, state.tileHeight)) &&
-                !collidesBottom(f, state.height)
+                !collides(block.fields, state.grid, new Vec2D(state.tileWidth, state.tileHeight)) &&
+                !collidesBottom(block.fields, state.height)
             ) {
-                f = f.map(field => ({
-                    ...field,
-                    x: field.x,
-                    y: field.y + state.tileHeight,
-                }));
+                block = translateBlock(block, 0, state.tileHeight);
             }
 
-            f = f.map(field => ({
-                ...field,
-                x: field.x,
-                y: field.y - state.tileHeight,
-            }));
+            block = translateBlock(block, 0, -state.tileHeight);
+
+            let updatedGrid = freezeBlockOnGrid(
+                state.grid,
+                block,
+            );
+             updatedGrid = deleteFullRows(
+                updatedGrid,
+                new Vec2D(state.width, state.height),
+                new Vec2D(state.tileWidth, state.tileHeight),
+            ); 
 
             return {
                 ...state,
                 updateCounter: state.updateCounter + 1,
-                grid: freezeBlockOnGrid(state.grid, { fields: f }),
+                grid: updatedGrid,
                 currBlock: createRandomBlock(state.tileWidth, state.tileHeight),
             };
         case "ROTATE_RIGHT":

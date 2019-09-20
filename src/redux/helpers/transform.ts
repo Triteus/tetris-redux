@@ -22,8 +22,26 @@ export function rotateRight(block: BlockState): { x: number; y: number }[] {
     });
 }
 
-export function deleteFullRows(grid: Field[][], size: Vec2D, tileSize: Vec2D): Field[][] {
+export function translateBlock(
+    block: BlockState,
+    offsetX: number,
+    offsetY: number,
+) {
+    return {
+        ...block,
+        fields: block.fields.map(field => ({
+            ...field,
+            x: field.x + offsetX,
+            y: field.y + offsetY,
+        })),
+    };
+}
 
+export function deleteFullRows(
+    grid: Field[][],
+    size: Vec2D,
+    tileSize: Vec2D,
+): Field[][] {
     const rows = getFullRows(grid);
     const numCols = size.x / tileSize.x;
     let updatedGrid: Field[][] = grid;
@@ -59,11 +77,20 @@ function getFullRows(grid: Field[][]): { [y: number]: number } {
     return rows;
 }
 
-function lowerFields(grid: Field[][], rowPos: number, tileSize: Vec2D): Field[][] {
+function lowerFields(
+    grid: Field[][],
+    rowPos: number,
+    tileSize: Vec2D,
+): Field[][] {
     return grid.map(cols => {
         return cols.map(field => {
             const { x, y } = field.getPos();
             const { x: tileWidth, y: tileHeight } = tileSize;
+
+            if (y === 0) {
+                return field;
+            }
+
             const upperField =
                 grid[x / tileWidth][(y - tileHeight) / tileHeight];
             if (!upperField) {
@@ -74,6 +101,28 @@ function lowerFields(grid: Field[][], rowPos: number, tileSize: Vec2D): Field[][
             }
             if (field.getType() === FieldType.BLOCK && y <= rowPos) {
                 return new Field(new Vec2D(x, y), upperField.getType());
+            }
+            return field;
+        });
+    });
+}
+
+export function fillGrid(grid: Field[][]) {
+    return grid.map(cols => {
+        return cols.map(field => {
+            return new Field(field.getPos(), FieldType.BLOCK);
+        });
+    });
+}
+
+/** put block onto grid */
+export function freezeBlockOnGrid(grid: Field[][], block: BlockState) {
+    return grid.map(col => {
+        return col.map(field => {
+            for (let f of block.fields) {
+                if (field.getPos().x === f.x && field.getPos().y === f.y) {
+                    return new Field(field.getPos(), FieldType.BLOCK);
+                }
             }
             return field;
         });

@@ -1,46 +1,43 @@
-import {createStore, combineReducers, applyMiddleware} from 'redux'; 
-import { createGrid, Vec2D } from '../models/Grid';
-import { Field } from '../models/Field';
-import { composeWithDevTools } from 'redux-devtools-extension';
-import { root } from './reducers/root';
-import { createRandomBlock } from '../models/TetrisBlock';
-import thunk from 'redux-thunk';
-
+import { createStore, combineReducers, applyMiddleware } from "redux";
+import { createGrid, Vec2D } from "../models/Grid";
+import { Field } from "../models/Field";
+import { composeWithDevTools } from "redux-devtools-extension";
+import { root } from "./reducers/root";
+import { createRandomBlock } from "../models/TetrisBlock";
+import thunk from "redux-thunk";
 
 export enum Direction {
-    NORTH, EAST, SOUTH, WEST
+    NORTH,
+    EAST,
+    SOUTH,
+    WEST,
 }
 
-
 export enum GameStatus {
-    MENU = 'MENU', PAUSED = 'PAUSED', ACTIVE = 'ACTIVE', GAME_OVER = 'GAME_OVER'
+    MENU = "MENU",
+    PAUSED = "PAUSED",
+    ACTIVE = "ACTIVE",
+    GAME_OVER = "GAME_OVER",
 }
 
 export interface GameState {
-
-    status: GameStatus, 
-    currBlock: BlockState,
-    grid: Field[][],
-    updateCounter: number,
-    height: number,
-    width: number,
-    tileWidth: number,
-    tileHeight: number,
-    timestamp: any,
+    status: GameStatus;
+    currBlock: BlockState;
+    grid: Field[][];
+    updateCounter: number;
+    height: number;
+    width: number;
+    tileWidth: number;
+    tileHeight: number;
+    timestamp: any;
     bufferedInputs: {
-        rotate: boolean,
-        down: boolean,
-        left: boolean,
-        right: boolean,
-        smash: boolean
-    },
-    info: {
-        nextBlock: BlockState,
-        blockCollided: boolean,
-        level: number,
-        points: number,
-        time: number
-    }
+        rotate: boolean;
+        down: boolean;
+        left: boolean;
+        right: boolean;
+        smash: boolean;
+    };
+    info: Stats;
 }
 
 const width = 160;
@@ -53,9 +50,14 @@ export const initialState: GameState = {
     currBlock: {
         fields: [],
     },
-    width, height,
-    tileWidth, tileHeight,
-    grid: createGrid(new Vec2D(width, height), new Vec2D(tileWidth, tileHeight)),
+    width,
+    height,
+    tileWidth,
+    tileHeight,
+    grid: createGrid(
+        new Vec2D(width, height),
+        new Vec2D(tileWidth, tileHeight),
+    ),
     updateCounter: 0,
     timestamp: 0,
     bufferedInputs: {
@@ -63,39 +65,42 @@ export const initialState: GameState = {
         down: false,
         left: false,
         right: false,
-        smash: false
+        smash: false,
     },
     info: {
         nextBlock: createRandomBlock(tileWidth, tileHeight),
-        blockCollided: false,
         level: 0,
         points: 0,
-        time: 0 
-    }
-
-
-}
+        time: 0,
+    },
+};
 
 export interface BlockState {
-    fields: FieldCoords[], 
+    fields: FieldCoords[];
 }
 
 export interface FieldCoords {
-    x: number,
-    y: number,
-    isCenter?: boolean,
+    x: number;
+    y: number;
+    isCenter?: boolean;
+}
+
+export interface Stats {
+    nextBlock: BlockState;
+    level: number;
+    points: number;
+    time: number;
 }
 
 const game = (state = initialState, action: any) => {
     return state;
-}
+};
 
 const rootReducer = combineReducers({
-    game
-})
+    game,
+});
 
 export const store = createStore(
     root,
-    composeWithDevTools(
-        applyMiddleware(thunk)
-    ));
+    composeWithDevTools(applyMiddleware(thunk)),
+);
