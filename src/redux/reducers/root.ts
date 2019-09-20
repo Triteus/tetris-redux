@@ -148,6 +148,14 @@ export function root(state = initialState, action: any ): GameState {
                 
             };
             case 'ROTATE_RIGHT':
+
+            const rotatedFields = rotateRight(state.currBlock);
+
+            if(collides(rotatedFields, state.grid) || 
+            collidesBottom(rotatedFields, state.height) ||
+            rotatedFields.some(f => f.x < 0 || f.x >= state.width)) {
+                return state;
+            }
                 return {
                     ...state,
                     updateCounter: state.updateCounter + 1,
