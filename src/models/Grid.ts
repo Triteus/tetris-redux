@@ -1,5 +1,4 @@
 import { Field } from "./Field";
-import { TetrisBlock } from "./TetrisBlock";
 import { FieldType } from "./FieldType";
 
 
@@ -39,7 +38,6 @@ export class Grid {
     updateField(pos: Vec2D, type: string, isMoving: boolean) {
         const field = this.resolveField(pos);
         field.setType(type);
-        field.setIsMoving(isMoving);
     }
 
     getFieldByIndex(index: number) {

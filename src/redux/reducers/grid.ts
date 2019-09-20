@@ -1,11 +1,11 @@
 import { initialState, GameState, BlockState } from "../store";
-import { createTBlock, createLBlock } from "../../models/TetrisBlock";
+import { createRandomBlock } from "../../models/TetrisBlock";
 import { rotateRight } from "../helpers/transform";
 import { collides, collidesBottom } from "../helpers/collision";
 import { FieldType } from "../../models/FieldType";
 import { Field } from "../../models/Field";
 
-
+/** put block onto grid */
 function freezeBlockOnGrid(grid: Field[], block: BlockState) {
     return grid.map((field) => {
         for(let f of block.fields) {
@@ -20,7 +20,7 @@ function freezeBlockOnGrid(grid: Field[], block: BlockState) {
 export function root(state = initialState, action: any ): GameState {
     switch(action.type) {
         case 'START':
-            const {fields} = createLBlock(state.tileWidth, state.tileHeight);
+            const {fields} = createRandomBlock(state.tileWidth, state.tileHeight);
             return {
                 ...state,
                 updateCounter: state.updateCounter + 1,
@@ -28,23 +28,33 @@ export function root(state = initialState, action: any ): GameState {
                 currBlock: {
                     ...state.currBlock,
                     fields, 
+                },
+                info: {
+                    ...state.info,
+                    nextBlock: createRandomBlock(state.tileWidth, state.tileHeight)
                 }                
             }
         case 'UPDATE':
             let updatedFields = state.currBlock.fields.map((field) => ({
                 ...field, x: field.x, y: field.y + state.tileHeight
              }));
-            let grid = state.grid;
 
-             if(collides(updatedFields, grid) || collidesBottom(updatedFields, state.height)) {
-                const {fields} = createTBlock(state.tileWidth, state.tileHeight);
-                updatedFields = fields;
-                grid = freezeBlockOnGrid(state.grid, state.currBlock);
+             if(collides(updatedFields, state.grid) || collidesBottom(updatedFields, state.height)) {
+                return {
+                    ...state,
+                    grid: freezeBlockOnGrid(state.grid, state.currBlock),
+                    updateCounter: state.updateCounter + 1,
+                    currBlock: state.info.nextBlock,
+                    info: {
+                        ...state.info,
+                        nextBlock: createRandomBlock(state.tileWidth, state.tileHeight)
+                    }
+                }
              }
 
             return {
                 ...state,
-                grid,
+               
                 updateCounter: state.updateCounter + 1,
                 currBlock: {
                     ...state.currBlock,
@@ -113,7 +123,7 @@ export function root(state = initialState, action: any ): GameState {
                 ...state,
                 updateCounter: state.updateCounter + 1,
                 grid: freezeBlockOnGrid(state.grid, {fields: f}),
-                currBlock: createTBlock(state.tileWidth, state.tileHeight)
+                currBlock: createRandomBlock(state.tileWidth, state.tileHeight)
                 
             };
             case 'ROTATE_RIGHT':

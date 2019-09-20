@@ -50,3 +50,9 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 - instead, I just use a canvas element to print the grid contained in the redux-store
 - this makes it easier to print multiple layers and avoid unnecessary changes to the store
     - e.g. updating current block and environment is handled separately
+
+
+## TODO
+- game over
+- add menu
+- add overlay for state
