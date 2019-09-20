@@ -1,30 +1,54 @@
-import { initialState, GameState, Direction } from "../store";
-import { createSquareBlock, createTBlock, createLBlock } from "../../models/TetrisBlock";
+import { initialState, GameState, BlockState } from "../store";
+import { createTBlock, createLBlock } from "../../models/TetrisBlock";
 import { rotateRight } from "../helpers/transform";
+import { collides, collidesBottom } from "../helpers/collision";
+import { FieldType } from "../../models/FieldType";
+import { Field } from "../../models/Field";
+
+
+function freezeBlockOnGrid(grid: Field[], block: BlockState) {
+    return grid.map((field) => {
+        for(let f of block.fields) {
+            if( field.getPos().x === f.x && field.getPos().y === f.y) {
+                return new Field(field.getPos(), FieldType.BLOCK);
+            }
+        }
+       return field;
+    })
+}
 
 export function root(state = initialState, action: any ): GameState {
-    let updatedFields = [];
     switch(action.type) {
         case 'START':
-            const {fields, centerField} = createLBlock(state.tileWidth, state.tileHeight);
+            const {fields} = createLBlock(state.tileWidth, state.tileHeight);
             return {
                 ...state,
                 updateCounter: state.updateCounter + 1,
                 status: 'ACTIVE',
                 currBlock: {
                     ...state.currBlock,
-                    fields, baseFields: fields
+                    fields, 
                 }                
             }
         case 'UPDATE':
+            let updatedFields = state.currBlock.fields.map((field) => ({
+                ...field, x: field.x, y: field.y + state.tileHeight
+             }));
+            let grid = state.grid;
+
+             if(collides(updatedFields, grid) || collidesBottom(updatedFields, state.height)) {
+                const {fields} = createTBlock(state.tileWidth, state.tileHeight);
+                updatedFields = fields;
+                grid = freezeBlockOnGrid(state.grid, state.currBlock);
+             }
+
             return {
                 ...state,
+                grid,
                 updateCounter: state.updateCounter + 1,
                 currBlock: {
                     ...state.currBlock,
-                    fields: state.currBlock.fields.map((field) => ({
-                       ...field, x: field.x, y: field.y + state.tileHeight
-                    }))
+                    fields: updatedFields
                 }
             }
             // update position of current block
@@ -44,7 +68,7 @@ export function root(state = initialState, action: any ): GameState {
             let fieldsToLeft = state.currBlock.fields.map((field) => ({
                 ...field, x: field.x - state.tileWidth, y: field.y
             }));
-            if(fieldsToLeft.some(f => f.x < 0)) {
+            if(fieldsToLeft.some(f => f.x < 0) || collides(fieldsToLeft, state.grid)) {
                 return state;
             }
             
@@ -61,7 +85,7 @@ export function root(state = initialState, action: any ): GameState {
                 let fieldsToRight = state.currBlock.fields.map((field) => ({
                     ...field, x: field.x + state.tileWidth, y: field.y
                 }));
-                if(fieldsToRight.some(f => f.x >= state.width)) {
+                if(fieldsToRight.some(f => f.x >= state.width) || collides(fieldsToRight, state.grid)) {
                     return state;
                 }
 
@@ -74,23 +98,23 @@ export function root(state = initialState, action: any ): GameState {
                 }
             };
             case 'SMASH':
-            let lowY = Number.MIN_SAFE_INTEGER;
-            // get lowest position
-            state.currBlock.fields.forEach((field) => {
-                if(field.y > lowY) {
-                    lowY = field.y
-                }
-            })
-            const offset =  state.height - lowY - state.tileHeight;
+            let f = state.currBlock.fields;
+            while(!collides(f, state.grid) && !collidesBottom(f, state.height)) {
+                f = f.map((field) => ({
+                    ...field, x: field.x, y: field.y + state.tileHeight
+                 }));
+            }
+
+            f = f.map((field) => ({
+                ...field, x: field.x, y: field.y - state.tileHeight
+             }));
+
             return {
                 ...state,
                 updateCounter: state.updateCounter + 1,
-                currBlock: {
-                    ...state.currBlock,
-                    fields: state.currBlock.fields.map((field) => ({
-                        ...field, x: field.x, y:  field.y + offset
-                    }))
-                }
+                grid: freezeBlockOnGrid(state.grid, {fields: f}),
+                currBlock: createTBlock(state.tileWidth, state.tileHeight)
+                
             };
             case 'ROTATE_RIGHT':
                 return {

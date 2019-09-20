@@ -1,56 +1,57 @@
+import { Action } from "./types"
 
 
-export function start() {
+export function start(): Action {
     return {
         type: 'START'
     }
 }
 
-export function pause() {
+export function pause(): Action {
     return {
         type: 'PAUSE'
     }
 }
 
-export function reset() {
+export function reset(): Action {
     return {
         type: 'RESET'
     }
 }
 
-export function update() {
+export function update(): Action {
     return {
         type: 'UPDATE'
     }
 }
 
-export function smash() {
+export function smash(): Action {
     return {
         type: 'SMASH'
     }
 }
 
 
-export function moveLeft() {
+export function moveLeft(): Action {
     return {
         type: 'MOVE_LEFT'
     }
 }
 
 
-export function moveRight() {
+export function moveRight(): Action {
     return {
         type: 'MOVE_RIGHT'
     }
 }
 
-export function rotateLeft() {
+export function rotateLeft(): Action {
     return {
         type: 'ROTATE_LEFT'
     }   
 }
 
-export function rotateRight() {
+export function rotateRight(): Action {
     return {
         type: 'ROTATE_RIGHT'
     }
