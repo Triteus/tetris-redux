@@ -5,6 +5,9 @@ import { collides, collidesBottom } from "../helpers/collision";
 import { Vec2D } from "../../models/Grid";
 
 
+function calcPoints(delRowsCount: number) {
+    return delRowsCount * 100;
+}
 
 // TODO logic dealing with calculating new state should be placed inside action creators
 // in this way, we can dispatch more specific actions and can make use of composition of small reducers
@@ -52,15 +55,11 @@ export function root(state = initialState, action: any): GameState {
                         status: GameStatus.GAME_OVER,
                     };
                 }
-                let updatedGrid = freezeBlockOnGrid(
-                    state.grid,
-                    state.currBlock,
-                );
-                 updatedGrid = deleteFullRows(
-                    updatedGrid,
-                    new Vec2D(state.width, state.height),
-                    new Vec2D(state.tileWidth, state.tileHeight),
-                ); 
+                let {updatedGrid, deletedRowsCount} = deleteFullRows(
+                freezeBlockOnGrid(state.grid, state.currBlock),
+                new Vec2D(state.width, state.height),
+                new Vec2D(state.tileWidth, state.tileHeight),
+            ); 
                 return {
                     ...state,
                     grid: updatedGrid,
@@ -68,6 +67,8 @@ export function root(state = initialState, action: any): GameState {
                     currBlock: state.info.nextBlock,
                     info: {
                         ...state.info,
+                        points: state.info.points + calcPoints(deletedRowsCount),
+                        placedBlocks: state.info.placedBlocks + 1,
                         nextBlock: createRandomBlock(
                             state.tileWidth,
                             state.tileHeight,
@@ -100,18 +101,17 @@ export function root(state = initialState, action: any): GameState {
                 grid: initialState.grid,
                 info: {
                     ...state.info,
+                    points: 0,
+                    placedBlocks: 0,
+                    time: 0,
                     level: state.info.level,
                 },
             };
         case "MOVE_LEFT":
-            let fieldsToLeft = state.currBlock.fields.map(field => ({
-                ...field,
-                x: field.x - state.tileWidth,
-                y: field.y,
-            }));
+            let blockToLeft = translateBlock(state.currBlock, -state.tileWidth, 0 );
             if (
-                fieldsToLeft.some(f => f.x < 0) ||
-                collides(fieldsToLeft, state.grid, new Vec2D(state.tileWidth, state.tileHeight))
+                blockToLeft.fields.some(f => f.x < 0) ||
+                collides(blockToLeft.fields, state.grid, new Vec2D(state.tileWidth, state.tileHeight))
             ) {
                 return state;
             }
@@ -119,20 +119,13 @@ export function root(state = initialState, action: any): GameState {
             return {
                 ...state,
                 updateCounter: state.updateCounter + 1,
-                currBlock: {
-                    ...state.currBlock,
-                    fields: fieldsToLeft,
-                },
+                currBlock: blockToLeft
             };
         case "MOVE_RIGHT":
-            let fieldsToRight = state.currBlock.fields.map(field => ({
-                ...field,
-                x: field.x + state.tileWidth,
-                y: field.y,
-            }));
+            let blockToRight = translateBlock(state.currBlock, state.tileWidth, 0 );
             if (
-                fieldsToRight.some(f => f.x >= state.width) ||
-                collides(fieldsToRight, state.grid, new Vec2D(state.tileWidth, state.tileHeight))
+                blockToRight.fields.some(f => f.x >= state.width) ||
+                collides(blockToRight.fields, state.grid, new Vec2D(state.tileWidth, state.tileHeight))
             ) {
                 return state;
             }
@@ -140,37 +133,7 @@ export function root(state = initialState, action: any): GameState {
             return {
                 ...state,
                 updateCounter: state.updateCounter + 1,
-                currBlock: {
-                    ...state.currBlock,
-                    fields: fieldsToRight,
-                },
-            };
-        case "SMASH":
-            let block = state.currBlock;
-            while (
-                !collides(block.fields, state.grid, new Vec2D(state.tileWidth, state.tileHeight)) &&
-                !collidesBottom(block.fields, state.height)
-            ) {
-                block = translateBlock(block, 0, state.tileHeight);
-            }
-
-            block = translateBlock(block, 0, -state.tileHeight);
-
-            let updatedGrid = freezeBlockOnGrid(
-                state.grid,
-                block,
-            );
-             updatedGrid = deleteFullRows(
-                updatedGrid,
-                new Vec2D(state.width, state.height),
-                new Vec2D(state.tileWidth, state.tileHeight),
-            ); 
-
-            return {
-                ...state,
-                updateCounter: state.updateCounter + 1,
-                grid: updatedGrid,
-                currBlock: createRandomBlock(state.tileWidth, state.tileHeight),
+                currBlock: blockToRight,
             };
         case "ROTATE_RIGHT":
             const rotatedFields = rotateRight(state.currBlock);

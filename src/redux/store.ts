@@ -70,6 +70,7 @@ export const initialState: GameState = {
     info: {
         nextBlock: createRandomBlock(tileWidth, tileHeight),
         level: 0,
+        placedBlocks: 0,
         points: 0,
         time: 0,
     },
@@ -89,6 +90,7 @@ export interface Stats {
     nextBlock: BlockState;
     level: number;
     points: number;
+    placedBlocks: number;
     time: number;
 }
 

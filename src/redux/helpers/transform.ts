@@ -41,19 +41,23 @@ export function deleteFullRows(
     grid: Field[][],
     size: Vec2D,
     tileSize: Vec2D,
-): Field[][] {
+): {updatedGrid: Field[][], deletedRowsCount: number} {
     const rows = getFullRows(grid);
     const numCols = size.x / tileSize.x;
     let updatedGrid: Field[][] = grid;
 
     // it is essential that keys are read from top to bottom
-    for (let key of Object.keys(rows)) {
+    const keys = Object.keys(rows)
+    let rowsCount = 0;
+    
+    for (let key of keys) {
         const rowPos = parseInt(key);
         if (rows[rowPos] === numCols) {
+            rowsCount++;
             updatedGrid = lowerFields(updatedGrid, rowPos, tileSize);
         }
     }
-    return updatedGrid;
+    return {updatedGrid, deletedRowsCount: rowsCount};
 }
 
 /**
