@@ -1,9 +1,11 @@
-import {createStore, combineReducers} from 'redux'; 
+import {createStore, combineReducers, applyMiddleware} from 'redux'; 
 import { createGrid, Vec2D } from '../models/Grid';
 import { Field } from '../models/Field';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import { root } from './reducers/root';
 import { createRandomBlock } from '../models/TetrisBlock';
+import thunk from 'redux-thunk';
+
 
 export enum Direction {
     NORTH, EAST, SOUTH, WEST
@@ -11,7 +13,7 @@ export enum Direction {
 
 
 export enum GameStatus {
-    MENU, PAUSED, ACTIVE, GAME_OVER
+    MENU = 'MENU', PAUSED = 'PAUSED', ACTIVE = 'ACTIVE', GAME_OVER = 'GAME_OVER'
 }
 
 export interface GameState {
@@ -94,4 +96,6 @@ const rootReducer = combineReducers({
 
 export const store = createStore(
     root,
-    composeWithDevTools());
+    composeWithDevTools(
+        applyMiddleware(thunk)
+    ));

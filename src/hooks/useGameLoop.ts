@@ -1,28 +1,54 @@
 import { useEffect, useRef } from "react";
-import { clearInterval } from "timers";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { update, start } from "../redux/actions/update";
+import { GameStatus, GameState } from "../redux/store";
+import { Timer } from "../redux/helpers/timer";
+
+
+
 
 export const useGameLoop = () => {
-    const reset = false;
     const time = 1000;
     let iv = useRef<any>(null);
+    
+    const loop = () => {
+        dispatch(update());
+    };
+
+    const timer = useRef<any>(Timer(loop, 1000))
 
     const dispatch = useDispatch();
 
+    const gameStatus = useSelector<GameState, GameStatus>(state => {
+        return state.status;
+    })
+
+
+
     useEffect(() => {
         dispatch(start());
-        iv.current = setInterval(() => {
-            dispatch(update());
-        }, time);
         return function() {
-            clearInterval(iv.current);
+            if(iv.current) {
+                timer.current.pause();
+            }
         };
     }, []);
 
     useEffect(() => {
-        if (reset) {
-            clearInterval(iv.current);
+        if(gameStatus === GameStatus.ACTIVE) {
+            if(!timer.current.hasStarted()) {
+                timer.current.start();
+            } else {
+                timer.current.resume();
+            }
         }
-    }, [reset]);
+        if (gameStatus === GameStatus.GAME_OVER) {
+            timer.current.pause();
+        }
+        
+        if(gameStatus === GameStatus.PAUSED) {
+            timer.current.pause();
+        }
+
+    }, [gameStatus]);
 };

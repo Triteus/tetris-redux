@@ -1,4 +1,7 @@
 import { Action } from "./types"
+import { Dispatch } from "redux"
+import { GameStatus } from "../store";
+import { GameStats } from "../../GameStats";
 
 
 export function start(): Action {
@@ -7,16 +10,25 @@ export function start(): Action {
     }
 }
 
-export function pause(): Action {
-    return {
-        type: 'PAUSE'
-    }
+export function togglePause() {
+    return ((dispatch: Dispatch, getState: any) => {
+        const status = getState().status;
+        if(status === GameStatus.ACTIVE) {
+            dispatch({type: 'PAUSE'});
+        }
+        if(status === GameStatus.PAUSED) {
+            dispatch({type: 'UNPAUSE'});
+        }
+    }) 
+    
 }
 
-export function reset(): Action {
-    return {
-        type: 'RESET'
-    }
+
+export function reset() {
+    return ((dispatch: Dispatch) => {
+        dispatch({type: 'RESET'});
+        dispatch({type: 'START'});
+    })
 }
 
 export function update(): Action {

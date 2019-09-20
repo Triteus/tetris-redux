@@ -1,6 +1,6 @@
 import { useEffect } from "react"
 import { useDispatch } from "react-redux";
-import { moveLeft, moveRight, rotateRight, smash, update } from "../redux/actions/update";
+import { moveLeft, moveRight, rotateRight, smash, update, togglePause, reset } from "../redux/actions/update";
 
 
 export const useInputHandler = () => {
@@ -21,6 +21,10 @@ export const useInputHandler = () => {
                 dispatch(rotateRight());
             } else if(event.key === 'Control') {
                 dispatch(smash());
+            } else if(event.key === 'p') {
+                dispatch(togglePause());
+            } else if(event.key === 'r') {
+                dispatch(reset());
             }
         })
     }, [dispatch]);

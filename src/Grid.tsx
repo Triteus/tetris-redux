@@ -6,6 +6,8 @@ import { FieldType } from "./models/FieldType";
 import { useGameLoop } from "./hooks/useGameLoop";
 import { useInputHandler } from "./hooks/useInputHandler";
 
+
+
 interface Props {}
 
 export const Grid: FC<Props> = props => {
@@ -93,6 +95,7 @@ export const Grid: FC<Props> = props => {
                 height={height}
             ></canvas>
             {gameStatus === GameStatus.GAME_OVER && <h1>Game Over!</h1>}
+            {gameStatus === GameStatus.PAUSED && <h1>Paused</h1>}
         </React.Fragment>
     );
 };

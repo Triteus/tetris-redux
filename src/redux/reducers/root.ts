@@ -17,6 +17,10 @@ function freezeBlockOnGrid(grid: Field[], block: BlockState) {
     })
 }
 
+
+// TODO logic dealing with calculating new state should be placed inside action creators 
+// in this way, we can dispatch more specific actions and can make use of composition of small reducers
+
 export function root(state = initialState, action: any ): GameState {
     switch(action.type) {
         case 'START':
@@ -64,29 +68,34 @@ export function root(state = initialState, action: any ): GameState {
                     }
                 }
              }
-
             return {
                 ...state,
-               
                 updateCounter: state.updateCounter + 1,
                 currBlock: {
                     ...state.currBlock,
                     fields: updatedFields
                 }
             }
-            // update position of current block
-            // if block collided with filled field => spawn block
-                //get upcoming block
-                // spawn block at pos (width / 2, 0)
-                // if block already collides with any filled field
-                    // game over
-                // calculate random block to be chosen next time
         case 'PAUSE':
-            // change status to paused
-            return state;
+            return {
+                ...state,
+                status: GameStatus.PAUSED
+            }
+        case 'UNPAUSE': {
+            return {
+                ...state,
+                status: GameStatus.ACTIVE
+            }
+        }
         case 'RESET':
-            // reset all status and create new grid
-            return state;
+            return {
+                ...state,
+                grid: initialState.grid,
+                info: {
+                    ...state.info,
+                    level: state.info.level
+                }
+            };
         case 'MOVE_LEFT':
             let fieldsToLeft = state.currBlock.fields.map((field) => ({
                 ...field, x: field.x - state.tileWidth, y: field.y
@@ -104,7 +113,6 @@ export function root(state = initialState, action: any ): GameState {
                 }
             }
         case 'MOVE_RIGHT':
-
                 let fieldsToRight = state.currBlock.fields.map((field) => ({
                     ...field, x: field.x + state.tileWidth, y: field.y
                 }));
