@@ -1,6 +1,6 @@
 import React, { FC, useMemo, useRef, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { GameState, BlockState } from "./redux/store";
+import { GameState, GameStatus, BlockState } from "./redux/store";
 import { Field } from "./models/Field";
 import { FieldType } from "./models/FieldType";
 import { useGameLoop } from "./hooks/useGameLoop";
@@ -33,7 +33,6 @@ export const Grid: FC<Props> = props => {
         return state.tileWidth;
     });
 
- 
     const updateCounter = useSelector<GameState, number>(state => {
         return state.updateCounter;
     });
@@ -42,8 +41,7 @@ export const Grid: FC<Props> = props => {
 
     useGameLoop();
     useInputHandler();
-    
-    
+
     useEffect(() => {
         if (!canvasRef.current) return;
         const ctx = canvasRef.current.getContext("2d");
@@ -52,47 +50,49 @@ export const Grid: FC<Props> = props => {
         // clear everything before redrawing
         ctx.clearRect(0, 0, width, height);
 
-        // draw existing fields 
+        // draw existing fields
         grid.forEach(field => {
-            if(field.getType() === FieldType.EMPTY) {
-                ctx.strokeRect(
-                    field.getPos().x,
-                    field.getPos().y,
-                    tileWidth,
-                    tileHeight,
-                    ); 
-            } else {
+            ctx.strokeRect(
+                field.getPos().x,
+                field.getPos().y,
+                tileWidth,
+                tileHeight,
+            );
+            if (field.getType() === FieldType.BLOCK) {
                 ctx.fillRect(
-                    field.getPos().x,
-                    field.getPos().y,
-                    tileWidth,
-                    tileHeight,
-                    );
-                }
-            });
+                    field.getPos().x + 2,
+                    field.getPos().y + 2,
+                    tileWidth - 4,
+                    tileHeight - 4,
+                );
+            }
+        });
 
-            // draw current tetris-block
-            block.fields.forEach((field) => {
-                ctx.fillRect(
-                    field.x + 5,
-                    field.y + 5,
-                    tileWidth - 10,
-                    tileHeight - 10,
-                    );
-            })
+        // draw current tetris-block
+        block.fields.forEach(field => {
+            ctx.fillRect(
+                field.x + 2,
+                field.y + 2,
+                tileWidth - 4,
+                tileHeight - 4,
+            );
+        });
+    }, [updateCounter]);
 
-        }, [updateCounter]);
-   
-        
-        return (
-            <React.Fragment>
+    const gameStatus = useSelector<GameState, GameStatus>(state => {
+        return state.status;
+    });
+
+    return (
+        <React.Fragment>
             <canvas
-                style={{border: 'solid 1px black'}}
+                style={{ border: "solid 1px black" }}
                 ref={canvasRef}
                 id="tutorial"
                 width={width}
                 height={height}
             ></canvas>
+            {gameStatus === GameStatus.GAME_OVER && <h1>Game Over!</h1>}
         </React.Fragment>
     );
 };

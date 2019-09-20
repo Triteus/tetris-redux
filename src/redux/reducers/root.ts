@@ -1,4 +1,4 @@
-import { initialState, GameState, BlockState } from "../store";
+import { initialState, GameState, BlockState, GameStatus } from "../store";
 import { createRandomBlock } from "../../models/TetrisBlock";
 import { rotateRight } from "../helpers/transform";
 import { collides, collidesBottom } from "../helpers/collision";
@@ -24,7 +24,7 @@ export function root(state = initialState, action: any ): GameState {
             return {
                 ...state,
                 updateCounter: state.updateCounter + 1,
-                status: 'ACTIVE',
+                status: GameStatus.ACTIVE,
                 currBlock: {
                     ...state.currBlock,
                     fields, 
@@ -40,6 +40,19 @@ export function root(state = initialState, action: any ): GameState {
              }));
 
              if(collides(updatedFields, state.grid) || collidesBottom(updatedFields, state.height)) {
+
+                // check if next block instantly collides
+                if(collides(state.info.nextBlock.fields, state.grid)) {
+                    return {
+                        ...state,
+                        grid: state.grid.map((field) => {
+                            return new Field(field.getPos(), FieldType.BLOCK);
+                        }),
+                        updateCounter: state.updateCounter + 1,
+                        status: GameStatus.GAME_OVER
+                    }
+                }
+
                 return {
                     ...state,
                     grid: freezeBlockOnGrid(state.grid, state.currBlock),

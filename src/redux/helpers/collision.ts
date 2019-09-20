@@ -19,7 +19,3 @@ export function collidesBottom(fields: FieldCoords[], height: number) {
     }
     return false;
 }
-
-export function calcVerticalColl(grid: Field[]) {
-
-}

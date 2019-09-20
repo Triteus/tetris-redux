@@ -2,15 +2,21 @@ import {createStore, combineReducers} from 'redux';
 import { createGrid, Vec2D } from '../models/Grid';
 import { Field } from '../models/Field';
 import { composeWithDevTools } from 'redux-devtools-extension';
-import { root } from './reducers/grid';
+import { root } from './reducers/root';
+import { createRandomBlock } from '../models/TetrisBlock';
 
 export enum Direction {
     NORTH, EAST, SOUTH, WEST
 }
 
+
+export enum GameStatus {
+    MENU, PAUSED, ACTIVE, GAME_OVER
+}
+
 export interface GameState {
 
-    status: 'MENU' | 'PAUSED' | 'ACTIVE', 
+    status: GameStatus, 
     currBlock: BlockState,
     grid: Field[],
     updateCounter: number,
@@ -27,7 +33,7 @@ export interface GameState {
         smash: boolean
     },
     info: {
-        nextBlock: any,
+        nextBlock: BlockState,
         blockCollided: boolean,
         level: number,
         points: number,
@@ -41,7 +47,7 @@ const height = 640;
 const tileWidth = 16;
 const tileHeight = 16;
 export const initialState: GameState = {
-    status: 'MENU',
+    status: GameStatus.MENU,
     currBlock: {
         fields: [],
     },
@@ -58,7 +64,7 @@ export const initialState: GameState = {
         smash: false
     },
     info: {
-        nextBlock: '',
+        nextBlock: createRandomBlock(tileWidth, tileHeight),
         blockCollided: false,
         level: 0,
         points: 0,
