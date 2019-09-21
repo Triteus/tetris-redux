@@ -41,7 +41,7 @@ export function update(): Action {
 export function smash(): ThunkResult<void> {
     return (dispatch, getState) => {
         const oldState = getState();
-        while (getState().info.placedBlocks === oldState.info.placedBlocks) {
+        while (getState().info.placedBlocks === oldState.info.placedBlocks && getState().status !== GameStatus.GAME_OVER) {
             dispatch({ type: "UPDATE" });
         }
     };
