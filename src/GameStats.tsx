@@ -79,7 +79,7 @@ export const GameStats: FC<Props> = props => {
                     </tr>
                     <tr>
                         <td>Zeit:</td>
-                        <td>{time}</td>
+                        <td>{time} s</td>
                     </tr>
                     <tr>
                         <td>

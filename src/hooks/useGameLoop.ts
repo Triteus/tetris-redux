@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { update, start } from "../redux/actions/update";
+import { update, start, intervalUpdate } from "../redux/actions/update";
 import { GameStatus, GameState } from "../redux/store";
 import { Timer } from "../redux/helpers/timer";
 
@@ -12,7 +12,7 @@ export const useGameLoop = () => {
     let iv = useRef<any>(null);
     
     const loop = () => {
-        dispatch(update());
+        dispatch(intervalUpdate(time));
     };
 
     const timer = useRef<any>(Timer(loop, 1000))

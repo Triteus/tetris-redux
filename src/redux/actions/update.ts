@@ -38,6 +38,13 @@ export function update(): Action {
     };
 }
 
+export function intervalUpdate(interval: number): ThunkResult<void> {
+    return ((dispatch) => {
+        dispatch({type: 'UPDATE_TIME', interval: interval / 1000});
+        dispatch({type: 'UPDATE'});
+    })
+}
+
 export function smash(): ThunkResult<void> {
     return (dispatch, getState) => {
         const oldState = getState();

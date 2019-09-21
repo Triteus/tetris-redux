@@ -153,6 +153,15 @@ export function root(state = initialState, action: any): GameState {
                     fields: rotateRight(state.currBlock),
                 },
             };
+        case "UPDATE_TIME":
+            return {
+                ...state,
+                info: {
+                    ...state.info,
+                    time: state.info.time + action.interval
+                }
+            }
+
         default:
             return state;
     }
