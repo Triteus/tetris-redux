@@ -54,8 +54,10 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 
 ## TODO
 - add menu
-- add overlay for state
 - make controls changable
 - persist data in storage
 - add sounds
 - add some animations
+- add buttons as controls for mobile
+- make use of styled components
+- unit and integration tests

@@ -161,6 +161,14 @@ export function root(state = initialState, action: any): GameState {
                     time: state.info.time + action.interval
                 }
             }
+        case "UPDATE_LEVEL":
+            return {
+                ...state,
+                info: {
+                    ...state.info,
+                    level: action.level
+                }
+            }
 
         default:
             return state;

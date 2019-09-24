@@ -1,16 +1,21 @@
 import React, { FC, useMemo, useRef, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { GameState, GameStatus, BlockState } from "./redux/store";
 import { Field } from "./models/Field";
 import { FieldType } from "./models/FieldType";
 import { useGameLoop } from "./hooks/useGameLoop";
 import { useInputHandler } from "./hooks/useInputHandler";
+import { start } from "./redux/actions/update";
+
 
 
 
 interface Props {}
 
 export const Grid: FC<Props> = props => {
+
+    const dispatch = useDispatch();
+
     const grid = useSelector<GameState, Field[][]>(state => {
         return state.grid;
     });
@@ -87,6 +92,10 @@ export const Grid: FC<Props> = props => {
     const gameStatus = useSelector<GameState, GameStatus>(state => {
         return state.status;
     });
+
+    const startGame = () => {
+        dispatch(start())
+    }
 
     return (
         <React.Fragment>

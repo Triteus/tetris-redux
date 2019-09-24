@@ -1,6 +1,7 @@
 import React, { FC, useEffect, useReducer, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { GameState, Stats, BlockState } from "./redux/store";
+import { GameState, Stats, BlockState, GameStatus } from "./redux/store";
+import { updateLevel } from "./redux/actions/stats";
 
 interface Props {}
 
@@ -11,6 +12,10 @@ export const GameStats: FC<Props> = props => {
             return state.info;
         },
     );
+
+    const status = useSelector<GameState, GameStatus>(state => {
+        return state.status;
+    })
 
     useEffect(() => {
         console.info("nextBlock changed");
@@ -64,6 +69,10 @@ export const GameStats: FC<Props> = props => {
         });
     }, [nextBlock]);
 
+    const changeLevel = (event: any) => {
+        dispatch(updateLevel(event.target.value));
+    }
+
     return (
         <React.Fragment>
             <label>
@@ -71,7 +80,16 @@ export const GameStats: FC<Props> = props => {
                 <table className="stats-table">
                     <tr>
                         <td>Level:</td>
-                        <td>{level}</td>
+                        <td>
+                            {status === GameStatus.MENU && <input
+                                type="number"
+                                min={1}
+                                max={9}
+                                value={level}
+                                onChange={changeLevel}
+                            /> }
+                            {status !== GameStatus.MENU && level}
+                        </td>
                     </tr>
                     <tr>
                         <td>Punkte:</td>

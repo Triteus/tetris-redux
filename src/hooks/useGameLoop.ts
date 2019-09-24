@@ -5,8 +5,6 @@ import { GameStatus, GameState } from "../redux/store";
 import { Timer } from "../redux/helpers/timer";
 
 
-
-
 export const useGameLoop = () => {
     const time = 1000;
     let iv = useRef<any>(null);
@@ -15,7 +13,7 @@ export const useGameLoop = () => {
         dispatch(intervalUpdate(time));
     };
 
-    const timer = useRef<any>(Timer(loop, 1000))
+    const timer = useRef<any>(null);
 
     const dispatch = useDispatch();
 
@@ -23,16 +21,23 @@ export const useGameLoop = () => {
         return state.status;
     })
 
+    const level = useSelector<GameState, number>(state => {
+        return state.info.level;
+    })
+
 
 
     useEffect(() => {
-        dispatch(start());
         return function() {
             if(iv.current) {
                 timer.current.pause();
             }
         };
     }, []);
+
+    useEffect(() => {
+        timer.current = Timer(loop, 1000 - level * 100);
+    }, [level])
 
     useEffect(() => {
         if(gameStatus === GameStatus.ACTIVE) {
