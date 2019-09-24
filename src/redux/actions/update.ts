@@ -4,6 +4,10 @@ import { GameStatus, GameState } from "../store";
 import { GameStats } from "../../GameStats";
 import { ThunkAction } from "redux-thunk";
 import { statement } from "@babel/template";
+import { collides, collidesBottom } from "../helpers/collision";
+import { Vec2D } from "../../models/Grid";
+import { fillGrid, deleteFullRows, freezeBlockOnGrid } from "../helpers/transform";
+import { createRandomBlock } from "../../models/TetrisBlock";
 
 type ThunkResult<R> = ThunkAction<R, GameState, undefined, Action>;
 
@@ -32,16 +36,35 @@ export function reset() {
     };
 }
 
-export function update(): Action {
-    return {
-        type: "UPDATE",
-    };
+export function update(): ThunkResult<any> {
+    return ((dispatch, getState) => {
+        const state = getState();
+
+        let updatedFields = state.currBlock.fields.map(field => ({
+            ...field,
+            x: field.x,
+            y: field.y + state.tileHeight,
+        }));
+
+        if (
+            collides(updatedFields, state.grid, new Vec2D(state.tileWidth, state.tileHeight)) ||
+            collidesBottom(updatedFields, state.height)
+        ) {
+            // check if next block instantly collides
+            if (collides(state.info.nextBlock.fields, state.grid, new Vec2D(state.tileWidth, state.tileHeight))) {
+                return dispatch({type: 'GAME_OVER'});
+            }  
+            return dispatch({type: "ADD_BLOCK_TO_GRID"});
+        }
+        return dispatch({type: "MOVE_DOWN_BLOCK"});
+    });
+
 }
 
 export function intervalUpdate(interval: number): ThunkResult<void> {
     return ((dispatch) => {
         dispatch({type: 'UPDATE_TIME', interval: interval / 1000});
-        dispatch({type: 'UPDATE'});
+        dispatch(update());
     })
 }
 
@@ -49,7 +72,7 @@ export function smash(): ThunkResult<void> {
     return (dispatch, getState) => {
         const oldState = getState();
         while (getState().info.placedBlocks === oldState.info.placedBlocks && getState().status !== GameStatus.GAME_OVER) {
-            dispatch({ type: "UPDATE" });
+            dispatch(update());
         }
     };
 }
