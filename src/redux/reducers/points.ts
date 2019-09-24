@@ -1,9 +1,12 @@
 import { initialState } from "../store";
 
-export function points(points = initialState.info.points, action: any) {
+
+export const POINT_INC_STEPS = 100;
+
+export function points(points = initialState.info.points, action: {type: string, points: number}) {
     switch(action.type) {
-        case "INCREASE_POINTS":
-            return points + 100;
+        case "ADD_POINTS":
+            return points + action.points;
         case "RESET_POINTS":
             return 0;
         default:

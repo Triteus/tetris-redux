@@ -5,12 +5,17 @@ import { ThunkAction } from "redux-thunk";
 import { collides, collidesBottom } from "../helpers/collision";
 import { Vec2D } from "../../models/Grid";
 import { deleteFullRows, freezeBlockOnGrid } from "../helpers/transform";
+import { POINT_INC_STEPS } from "../reducers/points";
 
 function calcPoints(delRowsCount: number) {
     return delRowsCount * 100;
 }
 
 const ptsForNextLevel = 500;
+
+function nextLevelReached(points: number) {
+    return points !== 0 && ((points + POINT_INC_STEPS) % ptsForNextLevel) === 0;
+}
 
 type ThunkResult<R> = ThunkAction<R, GameState, undefined, Action>;
 
@@ -66,10 +71,9 @@ export function update(): ThunkResult<any> {
                 new Vec2D(state.tileWidth, state.tileHeight),
             );
             if(deletedRowsCount > 0) {
-                const points = state.info.points + calcPoints(deletedRowsCount);
-                dispatch({type: 'INCREASE_POINTS' })
-                
-                if(points !== 0 && (points % ptsForNextLevel) === 0) {
+                dispatch({type: 'ADD_POINTS', points: calcPoints(deletedRowsCount) })
+                                 
+                if(nextLevelReached(state.info.points)){
                     dispatch({type: 'INCREASE_LEVEL'});
                 }
             }
