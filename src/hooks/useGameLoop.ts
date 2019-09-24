@@ -9,7 +9,9 @@ export const useGameLoop = () => {
 
     let iv = useRef<any>(null);
 
-    let secondsTimer = useRef<any>(null);
+    let secondsTimer = useRef<any>(Timer(() => {
+        dispatch(timeUpdate());
+    }, 1000));
     
     const loop = () => {
         dispatch(update());
@@ -37,15 +39,19 @@ export const useGameLoop = () => {
     }, []);
 
     useEffect(() => {
+        if(!secondsTimer.current) return;
+        
         if(gameStatus === GameStatus.ACTIVE) {
-            // start counting
-            secondsTimer.current = setInterval(() => {
-                dispatch(timeUpdate());
-            }, 1000)
+            // (re)start counting
+            if(secondsTimer.current.hasStarted()) {
+                secondsTimer.current.resume();
+            } else {
+                secondsTimer.current.start();
+            }
         } else {
             if(secondsTimer.current) {
                 // stop counting
-                clearInterval(secondsTimer.current);
+                secondsTimer.current.pause();
             }
         }
     }, [gameStatus])
