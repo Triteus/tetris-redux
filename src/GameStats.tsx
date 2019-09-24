@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useReducer, useRef } from "react";
+import React, { FC, useEffect, useReducer, useRef, SyntheticEvent } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { GameState, Stats, BlockState, GameStatus } from "./redux/store";
 import { updateLevel } from "./redux/actions/stats";
@@ -16,10 +16,6 @@ export const GameStats: FC<Props> = props => {
     const status = useSelector<GameState, GameStatus>(state => {
         return state.status;
     })
-
-    useEffect(() => {
-        console.info("nextBlock changed");
-    }, [nextBlock]);
 
     const tileWidth = useSelector<GameState, number>(state => {
         return state.tileWidth;
@@ -69,8 +65,8 @@ export const GameStats: FC<Props> = props => {
         });
     }, [nextBlock]);
 
-    const changeLevel = (event: any) => {
-        dispatch(updateLevel(event.target.value));
+    const changeLevel = (event: {target: {value: string}}) => {
+        dispatch(updateLevel(parseInt(event.target.value)));
     }
 
     return (

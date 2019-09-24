@@ -20,8 +20,8 @@ export function start(): Action {
     };
 }
 
-export function togglePause() {
-    return (dispatch: Dispatch, getState: any) => {
+export function togglePause(): ThunkResult<any> {
+    return (dispatch, getState) => {
         const status = getState().status;
         if (status === GameStatus.ACTIVE) {
             dispatch({ type: "PAUSE" });
