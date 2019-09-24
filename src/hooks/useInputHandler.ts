@@ -1,15 +1,13 @@
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-    moveLeft,
-    moveRight,
-    rotateRight,
-    smash,
     update,
     togglePause,
     reset,
 } from "../redux/actions/update";
 import { GameState, GameStatus } from "../redux/store";
+import { moveLeft, moveRight, smash, rotateRight } from "../redux/actions/block-transform";
+
 
 // TODO Users should be able to change standard controls
 

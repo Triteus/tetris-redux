@@ -1,13 +1,16 @@
 import { Action } from "./types";
 import { Dispatch } from "redux";
 import { GameStatus, GameState } from "../store";
-import { GameStats } from "../../GameStats";
 import { ThunkAction } from "redux-thunk";
-import { statement } from "@babel/template";
 import { collides, collidesBottom } from "../helpers/collision";
 import { Vec2D } from "../../models/Grid";
-import { fillGrid, deleteFullRows, freezeBlockOnGrid } from "../helpers/transform";
-import { createRandomBlock } from "../../models/TetrisBlock";
+import { deleteFullRows, freezeBlockOnGrid } from "../helpers/transform";
+
+function calcPoints(delRowsCount: number) {
+    return delRowsCount * 100;
+}
+
+const ptsForNextLevel = 500;
 
 type ThunkResult<R> = ThunkAction<R, GameState, undefined, Action>;
 
@@ -36,6 +39,8 @@ export function reset() {
     };
 }
 
+// main action of updating game
+
 export function update(): ThunkResult<any> {
     return ((dispatch, getState) => {
         const state = getState();
@@ -54,49 +59,33 @@ export function update(): ThunkResult<any> {
             if (collides(state.info.nextBlock.fields, state.grid, new Vec2D(state.tileWidth, state.tileHeight))) {
                 return dispatch({type: 'GAME_OVER'});
             }  
+
+            let { updatedGrid, deletedRowsCount } = deleteFullRows(
+                freezeBlockOnGrid(state.grid, state.currBlock),
+                new Vec2D(state.width, state.height),
+                new Vec2D(state.tileWidth, state.tileHeight),
+            );
+            if(deletedRowsCount > 0) {
+                const points = state.info.points + calcPoints(deletedRowsCount);
+                dispatch({type: 'INCREASE_POINTS' })
+                
+                if(points !== 0 && (points % ptsForNextLevel) === 0) {
+                    dispatch({type: 'INCREASE_LEVEL'});
+                }
+            }
             return dispatch({type: "ADD_BLOCK_TO_GRID"});
         }
+        
+
         return dispatch({type: "MOVE_DOWN_BLOCK"});
     });
 
 }
 
-export function intervalUpdate(interval: number): ThunkResult<void> {
+export function timeUpdate(): ThunkResult<void> {
     return ((dispatch) => {
-        dispatch({type: 'UPDATE_TIME', interval: interval / 1000});
-        dispatch(update());
+        dispatch({type: 'UPDATE_TIME', interval: 1});
     })
 }
 
-export function smash(): ThunkResult<void> {
-    return (dispatch, getState) => {
-        const oldState = getState();
-        while (getState().info.placedBlocks === oldState.info.placedBlocks && getState().status !== GameStatus.GAME_OVER) {
-            dispatch(update());
-        }
-    };
-}
 
-export function moveLeft(): Action {
-    return {
-        type: "MOVE_LEFT",
-    };
-}
-
-export function moveRight(): Action {
-    return {
-        type: "MOVE_RIGHT",
-    };
-}
-
-export function rotateLeft(): Action {
-    return {
-        type: "ROTATE_LEFT",
-    };
-}
-
-export function rotateRight(): Action {
-    return {
-        type: "ROTATE_RIGHT",
-    };
-}

@@ -9,10 +9,9 @@ import {
 } from "../helpers/transform";
 import { collides, collidesBottom } from "../helpers/collision";
 import { Vec2D } from "../../models/Grid";
+import { points } from "./points";
+import { level } from "./level";
 
-function calcPoints(delRowsCount: number) {
-    return delRowsCount * 100;
-}
 
 // TODO logic dealing with calculating new state should be placed inside action creators
 // in this way, we can dispatch more specific actions and can make use of composition of small reducers
@@ -64,11 +63,13 @@ export function root(state = initialState, action: any): GameState {
             };
         }
         case "ADD_BLOCK_TO_GRID":
-            let { updatedGrid, deletedRowsCount } = deleteFullRows(
+            let { updatedGrid } = deleteFullRows(
                 freezeBlockOnGrid(state.grid, state.currBlock),
                 new Vec2D(state.width, state.height),
                 new Vec2D(state.tileWidth, state.tileHeight),
             );
+        
+        
             return {
                 ...state,
                 grid: updatedGrid,
@@ -76,7 +77,6 @@ export function root(state = initialState, action: any): GameState {
                 currBlock: state.info.nextBlock,
                 info: {
                     ...state.info,
-                    points: state.info.points + calcPoints(deletedRowsCount),
                     placedBlocks: state.info.placedBlocks + 1,
                     nextBlock: createRandomBlock(
                         state.tileWidth,
@@ -105,7 +105,7 @@ export function root(state = initialState, action: any): GameState {
                     points: 0,
                     placedBlocks: 0,
                     time: 0,
-                    level: state.info.level,
+                    level: 0,
                 },
             };
         case "MOVE_LEFT":
@@ -182,16 +182,13 @@ export function root(state = initialState, action: any): GameState {
                     time: state.info.time + action.interval,
                 },
             };
-        case "UPDATE_LEVEL":
+        default:
             return {
                 ...state,
                 info: {
-                    ...state.info,
-                    level: action.level,
-                },
-            };
-
-        default:
-            return state;
+                        ...state.info,
+                        points: points(state.info.points, action),
+                        level: level(state.info.level, action)
+                    }};
     }
 }
