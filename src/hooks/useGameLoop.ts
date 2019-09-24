@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { update, start, timeUpdate } from "../redux/actions/update";
 import { GameStatus, GameState } from "../redux/store";
-import { Timer } from "../redux/helpers/timer";
+import { Timer } from "../util/timer";
 
 
 export const useGameLoop = () => {
