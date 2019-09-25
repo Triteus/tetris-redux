@@ -2,8 +2,16 @@ import React, { FC, useEffect, useReducer, useRef, SyntheticEvent } from "react"
 import { useDispatch, useSelector } from "react-redux";
 import { GameState, Stats, BlockState, GameStatus } from "./redux/store";
 import { updateLevel } from "./redux/actions/stats";
+import styled from "styled-components";
 
 interface Props {}
+
+
+const StatsTable = styled.table`
+    td {
+        padding: 15px;
+    }
+`;
 
 export const GameStats: FC<Props> = props => {
     const dispatch = useDispatch();
@@ -73,7 +81,7 @@ export const GameStats: FC<Props> = props => {
         <React.Fragment>
             <label>
                 <h3>Stats</h3>
-                <table className="stats-table">
+                <StatsTable>
                     <tr>
                         <td>Level:</td>
                         <td>
@@ -107,7 +115,7 @@ export const GameStats: FC<Props> = props => {
                             ></canvas>
                         </td>
                     </tr>
-                </table>
+                </StatsTable>
             </label>
         </React.Fragment>
     );

@@ -1,7 +1,20 @@
 import React, { FC } from "react";
+import styled from "styled-components";
 
 interface Props {}
 
+
+const Key = styled.td`
+    border: 5px outset grey;
+    background-color: ghostwhite;
+`;
+
+const ControlsTable = styled.table`
+    > tr > td:first-child {
+        text-align: left;
+        padding: 4px 20px 4px 2px;
+        }
+`;
 
 // TODO: Get all available controls from store
 
@@ -9,36 +22,36 @@ const Help: FC<Props> = props => {
     return (
         <label>
             <h3>Steuerung</h3>
-            <table className='controls-table'>
+            <ControlsTable>
                 <tr>
                     <td>Zurücksetzen</td>
-                    <td className='key'>R</td>
+                    <Key>R</Key>
                 </tr>
                 <tr>
                     <td>Pausieren/Fortsetzen</td>
-                    <td className='key'>P</td>
+                    <Key>P</Key>
                 </tr>
                 <tr>
                     <td>Rotieren</td>
-                    <td className='key'>W</td>
+                    <Key>W</Key>
                 </tr>
                 <tr>
                     <td>Sofort nach unten</td>
-                    <td className='key'>STRG</td>
+                    <Key>STRG</Key>
                 </tr>
                 <tr>
                     <td>Nach links</td>
-                    <td className='key'>A</td>
+                    <Key>A</Key>
                 </tr>
                 <tr>
                     <td>Nach rechts</td>
-                    <td className='key'>D</td>
+                    <Key>D</Key>
                 </tr>
                 <tr>
                     <td>Schneller nach unten</td>
-                    <td className='key'>S</td>
+                    <Key>S</Key>
                 </tr>
-            </table>
+            </ControlsTable>
         </label>
     );
 };
