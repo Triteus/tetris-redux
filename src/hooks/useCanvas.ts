@@ -1,5 +1,8 @@
 import { Ref, useEffect, useRef } from "react";
 
+
+// TODO put logic in Grid.tsx for drawing onto canvas here
+
 export const useCanvas = () => {
 
     const canvasRef = useRef<HTMLCanvasElement | null>(null);

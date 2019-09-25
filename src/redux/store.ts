@@ -38,6 +38,7 @@ export interface GameState {
         smash: boolean;
     };
     info: Stats;
+    input: InputState;
 }
 
 const width = 160;
@@ -74,6 +75,12 @@ export const initialState: GameState = {
         points: 0,
         time: 0,
     },
+    input: {
+        rotate: false,
+        left: false,
+        right: false,
+        down: false
+    }
 };
 
 export interface BlockState {
@@ -92,6 +99,13 @@ export interface Stats {
     points: number;
     placedBlocks: number;
     time: number;
+}
+
+export interface InputState {
+    rotate: boolean,
+    left: boolean,
+    right: boolean,
+    down: boolean
 }
 
 

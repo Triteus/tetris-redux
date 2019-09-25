@@ -11,6 +11,7 @@ import { collides, collidesBottom } from "../helpers/collision";
 import { Vec2D } from "../../models/Grid";
 import { points } from "./points";
 import { level } from "./level";
+import { input } from "./input";
 
 
 // TODO logic dealing with calculating new state should be placed inside action creators
@@ -185,10 +186,11 @@ export function root(state = initialState, action: any): GameState {
         default:
             return {
                 ...state,
+                input: input(state.input, action),
                 info: {
                         ...state.info,
                         points: points(state.info.points, action),
-                        level: level(state.info.level, action)
+                        level: level(state.info.level, action),
                     }};
     }
 }

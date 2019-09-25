@@ -29,6 +29,10 @@ export const useGameLoop = () => {
         return state.info.level;
     })
 
+    const downInput = useSelector<GameState, boolean>(state => {
+        return state.input.down;
+    })
+
 
     useEffect(() => {
         return function() {
@@ -37,6 +41,17 @@ export const useGameLoop = () => {
             }
         };
     }, []);
+
+    useEffect(() => {
+        if(downInput) {
+            // pause timer to avoid additional update when pressing down
+            timer.current.pause();
+        } else {
+            if(timer.current) {
+                timer.current.start();      
+            }
+        }
+    }, [downInput])
 
     useEffect(() => {
         if(!secondsTimer.current) return;
@@ -57,7 +72,7 @@ export const useGameLoop = () => {
     }, [gameStatus])
 
     useEffect(() => {
-        // pause current timer
+        // pause current timer (clear interval)
         if(timer.current) {
             timer.current.pause();
         }

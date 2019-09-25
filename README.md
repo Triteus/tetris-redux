@@ -59,5 +59,4 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 - add sounds
 - add some animations
 - add buttons as controls for mobile
-- make use of styled components
 - unit and integration tests
