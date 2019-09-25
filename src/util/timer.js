@@ -51,8 +51,15 @@ export function Timer(_fn_callback_, _timer_freq_){
             _time_ellapsed_     = 0;
             _time_lastCycle_     = new Date();
             _timer_statusCode_   = 1;
-            _timer_clockRef_     = setInterval(  nextCycle , _timer_freq_  );
+            _isCorrectionCycle_ = false;
             _hasStarted = true;
+
+            // stop timers
+            clearTimeout( _timer_clockRef_ );
+            clearInterval(_timer_clockRef_);
+
+            // start new timer
+            _timer_clockRef_     = setInterval(  nextCycle , _timer_freq_  );
         },
 
         hasStarted: function() {
