@@ -87,5 +87,3 @@ export function Timer(_fn_callback_, _timer_freq_){
     return timer;
 };
 
-
-let myTimer = Timer( x=> console.log(x.timestamp), 1000);

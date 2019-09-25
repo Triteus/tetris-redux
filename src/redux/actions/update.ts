@@ -25,11 +25,21 @@ export function start(): Action {
     };
 }
 
+
+let lastTimeInMillis = 0;
+
 export function togglePause(): ThunkResult<any> {
     return (dispatch, getState) => {
         const status = getState().status;
         if (status === GameStatus.ACTIVE) {
+            const timeInMillis = new Date().getTime();;
+            debugger;
+            if(((timeInMillis - lastTimeInMillis) / 1000) < 0.5 ) {
+                // prevent spamming pause
+                return;
+            } 
             dispatch({ type: "PAUSE" });
+            lastTimeInMillis = new Date().getTime();
         }
         if (status === GameStatus.PAUSED) {
             dispatch({ type: "UNPAUSE" });
