@@ -94,13 +94,6 @@ export interface Stats {
     time: number;
 }
 
-const game = (state = initialState, action: any) => {
-    return state;
-};
-
-const rootReducer = combineReducers({
-    game,
-});
 
 export const store = createStore(
     root,
