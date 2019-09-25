@@ -37,8 +37,9 @@ const StartButtonContainer = styled.div`
     grid-column-start: 2;
     grid-column-end: 3;
     grid-row-start: 2;
-    grid-row-end: 3;   
-`;
+    grid-row-end: 3;
+    
+`
 
 const App: React.FC = () => {
     const gameStatus = useSelector<GameState, GameStatus>(state => {
