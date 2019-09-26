@@ -51,6 +51,12 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 - this makes it easier to print multiple layers and avoid unnecessary changes to the store
     - e.g. updating current block and environment is handled separately
 
+- grid: switched from single array to a 2D array for easier access of fields
+- at the moment, the are many intervals being used for updating (via actions) + rendering
+    - this can lead to more unexpected behaviours if intervals are not properly cleared
+    - it is also not very precise when trying to consistently update everything (compared to requestanimationframe)
+    - in the end, a simple main-loop with a delta-time would make things easier
+
 
 ## TODO
 - add menu
