@@ -87,7 +87,7 @@ export const initialState: GameState = {
         right: 'd',
         down: 's',
         rotateRight: 'w',
-        smash: 'Control',
+        smash: ' ',
         pause: 'p',
         reset: 'r'
     }
