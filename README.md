@@ -52,15 +52,15 @@ To learn React, check out the [React documentation](https://reactjs.org/).
     - e.g. updating current block and environment is handled separately
 
 - grid: switched from single array to a 2D array for easier access of fields
-- at the moment, the are many intervals being used for updating (via actions) + rendering
+- at the moment, there are many intervals being used for updating (via actions) + rendering
     - this can lead to more unexpected behaviours if intervals are not properly cleared
     - it is also not very precise when trying to consistently update everything (compared to requestanimationframe)
     - in the end, a simple main-loop with a delta-time would make things easier
 
-
 ## TODO
 - add menu
 - make controls changable
+- use 'proper' rotation (original tetris)
 - persist data in storage
 - add sounds
 - add some animations

@@ -39,6 +39,7 @@ export interface GameState {
     };
     info: Stats;
     input: InputState;
+    cmdMappings: CmdMappingState
 }
 
 const width = 160;
@@ -80,6 +81,15 @@ export const initialState: GameState = {
         left: false,
         right: false,
         down: false
+    },
+    cmdMappings: {
+        left: 'a',
+        right: 'd',
+        down: 's',
+        rotateRight: 'w',
+        smash: 'Control',
+        pause: 'p',
+        reset: 'r'
     }
 };
 
@@ -108,6 +118,16 @@ export interface InputState {
     down: boolean
 }
 
+export interface CmdMappingState {
+    left: string,
+    right: string,
+    down: string,
+    rotateRight: string,
+    pause: string,
+    reset: string,
+    smash: string,
+    [cmd: string]: string
+}
 
 export const store = createStore(
     root,

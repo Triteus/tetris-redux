@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { update, togglePause, reset } from "../redux/actions/update";
-import { GameState, GameStatus } from "../redux/store";
+import { GameState, GameStatus, CmdMappingState } from "../redux/store";
 import {
     moveLeft,
     moveRight,
@@ -14,47 +14,37 @@ import { setLeft, setRight, setDown } from "../redux/actions/input";
 
 interface KeysMapping {
     [cmd: string]: {
-        key: string,
         updateAction: any;
         inputAction: any;
     };
 }
 
-const cmdNames = ['down', 'left', 'right', 'smash', 'rotateRight', 'reset', 'pause'];
-
-const mapping: KeysMapping = {
+const cmdToActionsMapping: KeysMapping = {
     down: {
-        key: 's',
         updateAction: update,
         inputAction: setDown
     },
     left: {
-        key: 'a',
         updateAction: moveLeft,
         inputAction: setLeft
     },
     right: {
-        key: 'd',
         updateAction: moveRight,
         inputAction: setRight
     },
     smash: {
-        key: 'Control',
         updateAction: smash,
         inputAction: null
     },
     rotateRight: {
-        key: 'w',
         updateAction: rotateRight,
         inputAction: null
     },
     reset: {
-        key: 'r',
         updateAction: reset,
         inputAction: null
     },
     pause: {
-        key: 'p',
         updateAction: togglePause,
         inputAction: null
     }
@@ -67,6 +57,10 @@ export const useInputHandler = () => {
         return state.status;
     });
 
+    const cmdToKeyMapping = useSelector<GameState, CmdMappingState>(state => {
+        return state.cmdMappings;
+    })
+
     const status = useRef<GameStatus | null>(null);
 
     const keysDict = useRef<{ [key: string]: boolean }>({});
@@ -74,12 +68,14 @@ export const useInputHandler = () => {
     const keysInputActionsMapping = useRef<{ [key: string]: any }>({});
 
     useEffect(() => {
-        for(let cmdName of cmdNames) {
-            const {key, updateAction, inputAction} = mapping[cmdName];
+        for(let cmdName of Object.keys(cmdToKeyMapping)) {
+            const key = cmdToKeyMapping[cmdName];
+            const {updateAction, inputAction} = cmdToActionsMapping[cmdName];
             keysUpdateActionMapping.current[key] = updateAction;
             keysInputActionsMapping.current[key] = inputAction;
         }
-    }, [])
+        debugger;
+    }, [cmdToKeyMapping])
 
 
     const interval = useRef<any | null>({});
