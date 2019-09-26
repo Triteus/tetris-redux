@@ -16,6 +16,7 @@ interface KeysMapping {
     [cmd: string]: {
         updateAction: any;
         inputAction: any;
+        activateWhenPaused?: boolean
     };
 }
 
@@ -42,11 +43,13 @@ const cmdToActionsMapping: KeysMapping = {
     },
     reset: {
         updateAction: reset,
-        inputAction: null
+        inputAction: null,
+        activateWhenPaused: true
     },
     pause: {
         updateAction: togglePause,
-        inputAction: null
+        inputAction: null,
+        activateWhenPaused: true
     }
 }
 
@@ -66,15 +69,16 @@ export const useInputHandler = () => {
     const keysDict = useRef<{ [key: string]: boolean }>({});
     const keysUpdateActionMapping = useRef<{ [key: string]: any }>({});
     const keysInputActionsMapping = useRef<{ [key: string]: any }>({});
+    const keysTypeMapping = useRef<{ [key: string]: any }>({});
 
     useEffect(() => {
         for(let cmdName of Object.keys(cmdToKeyMapping)) {
             const key = cmdToKeyMapping[cmdName];
-            const {updateAction, inputAction} = cmdToActionsMapping[cmdName];
+            const {updateAction, inputAction, activateWhenPaused} = cmdToActionsMapping[cmdName];
             keysUpdateActionMapping.current[key] = updateAction;
             keysInputActionsMapping.current[key] = inputAction;
+            keysTypeMapping.current[key] = !!activateWhenPaused;
         }
-        debugger;
     }, [cmdToKeyMapping])
 
 
@@ -103,6 +107,7 @@ export const useInputHandler = () => {
         }, 120);
     };
 
+    // save status in ref => keydown-event-listener has access to newest status
     useEffect(() => {
         status.current = gameStatus;
     }, [gameStatus]);
@@ -129,7 +134,8 @@ export const useInputHandler = () => {
             } else {
                 // game not active
                 const updateAction = keysUpdateActionMapping.current[event.key];
-                if (updateAction) {
+                const canActivateWhenPaused = keysTypeMapping.current[event.key];
+                if (updateAction && canActivateWhenPaused) {
                     dispatch(updateAction());
                 }
             }
