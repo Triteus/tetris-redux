@@ -1,15 +1,33 @@
 import React, { FC, useMemo, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { GameState, GameStatus, BlockState } from "./redux/store";
+import { GameState, GameStatus, BlockState, FieldCoords } from "./redux/store";
 import { Field } from "./models/Field";
 import { FieldType } from "./models/FieldType";
 import { useGameLoop } from "./hooks/useGameLoop";
 import { useInputHandler } from "./hooks/useInputHandler";
+import { collides, collidesBottom } from "./redux/helpers/collision";
+import { Vec2D } from "./models/Grid";
+import { translateBlock } from "./redux/helpers/transform";
 
 interface Props {}
 
+const drawBlock = (
+    ctx: CanvasRenderingContext2D,
+    color = "black",
+    block: BlockState,
+    tileWidth: number,
+    tileHeight: number,
+) => {
+    ctx.fillStyle = color;
+    block.fields.forEach(field => {
+        ctx.clearRect(field.x, field.y, tileWidth, tileHeight);
+        ctx.strokeRect(field.x, field.y, tileWidth, tileHeight);
+        ctx.fillRect(field.x + 2, field.y + 2, tileWidth - 4, tileHeight - 4);
+    });
+    ctx.fillStyle = "black";
+};
+
 export const Grid: FC<Props> = props => {
-    const dispatch = useDispatch();
 
     const grid = useSelector<GameState, Field[][]>(state => {
         return state.grid;
@@ -56,6 +74,26 @@ export const Grid: FC<Props> = props => {
         );
     }, [block]);
 
+    const shadowBlock = useMemo(() => {
+        if (block.fields.length === 0) {
+            // no block was set
+            return { fields: [] };
+        }
+        debugger;
+        let shadowBlock = block;
+        while (
+            !collides(
+                shadowBlock.fields,
+                grid,
+                new Vec2D(tileWidth, tileHeight),
+            ) &&
+            !collidesBottom(shadowBlock.fields, height)
+        ) {
+            shadowBlock = translateBlock(shadowBlock, 0, tileHeight);
+        }
+        return translateBlock(shadowBlock, 0, -tileHeight);
+    }, [grid, block, height, tileHeight, tileWidth]);
+
     const updateCounter = useSelector<GameState, number>(state => {
         return state.updateCounter;
     });
@@ -90,18 +128,10 @@ export const Grid: FC<Props> = props => {
                 ctx.strokeRect(x, y, tileWidth, tileHeight);
             }
         }
-
+        //draw collision shadow of current block
+        drawBlock(ctx, "grey", shadowBlock, tileWidth, tileHeight);
         // draw current tetris-block
-        block.fields.forEach(field => {
-            ctx.clearRect(field.x, field.y, tileWidth, tileHeight);
-            ctx.strokeRect(field.x, field.y, tileWidth, tileHeight);
-            ctx.fillRect(
-                field.x + 2,
-                field.y + 2,
-                tileWidth - 4,
-                tileHeight - 4,
-            );
-        });
+        drawBlock(ctx, "black", block, tileWidth, tileHeight);
     }, [updateCounter]);
 
     const gameStatus = useSelector<GameState, GameStatus>(state => {
@@ -113,7 +143,7 @@ export const Grid: FC<Props> = props => {
             <canvas
                 style={{ border: "solid 1px black" }}
                 ref={canvasRef}
-                id="tutorial"
+                id="grid"
                 width={width}
                 height={height}
             ></canvas>
