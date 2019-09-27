@@ -77,7 +77,7 @@ export const initialState: GameState = {
         time: 0,
     },
     input: {
-        rotate: false,
+        rotateRight: false,
         left: false,
         right: false,
         down: false
@@ -112,7 +112,7 @@ export interface Stats {
 }
 
 export interface InputState {
-    rotate: boolean,
+    rotateRight: boolean,
     left: boolean,
     right: boolean,
     down: boolean

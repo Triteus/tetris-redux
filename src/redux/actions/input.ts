@@ -24,3 +24,10 @@ export function setRight(pressed: boolean): InputAction {
         pressed
     }
 }
+
+export function setRotateRight(pressed: boolean): InputAction {
+    return {
+        type: 'SET_ROTATE_RIGHT',
+        pressed
+    }
+}

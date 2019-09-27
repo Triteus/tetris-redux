@@ -21,6 +21,12 @@ export function input(state = initialState.input, action: InputAction) {
                 right: action.pressed
             }
         }
+        case 'SET_ROTATE_RIGHT': {
+            return {
+                ...state,
+                rotateRight: action.pressed
+            }
+        }
         default:
             return state;
     }

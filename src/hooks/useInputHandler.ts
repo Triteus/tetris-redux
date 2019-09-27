@@ -8,7 +8,7 @@ import {
     smash,
     rotateRight,
 } from "../redux/actions/block-transform";
-import { setLeft, setRight, setDown } from "../redux/actions/input";
+import { setLeft, setRight, setDown, setRotateRight } from "../redux/actions/input";
 
 // TODO Users should be able to change standard controls
 
@@ -41,14 +41,14 @@ const cmdToActionsMapping: CommandsMapping = {
         updateAction: moveLeft,
         inputAction: {
             setInput: setLeft,
-            timeout: 100,
+            timeout: 90,
         },
     },
     right: {
         updateAction: moveRight,
         inputAction: {
             setInput: setRight,
-            timeout: 100,
+            timeout: 90,
         },
     },
     smash: {
@@ -57,7 +57,10 @@ const cmdToActionsMapping: CommandsMapping = {
     },
     rotateRight: {
         updateAction: rotateRight,
-        inputAction: null,
+        inputAction: {
+            setInput: setRotateRight,
+            timeout: 200
+        },
     },
     reset: {
         updateAction: reset,
@@ -101,7 +104,7 @@ export const useInputHandler = () => {
                 inputAction,
                 activateWhenPaused,
             } = cmdToActionsMapping[cmdName];
-            
+
             keysUpdateActionMapping.current[key] = updateAction;
             keysInputActionsMapping.current[key] = inputAction;
             keysTypeMapping.current[key] = !!activateWhenPaused;
