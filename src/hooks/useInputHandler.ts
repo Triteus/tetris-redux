@@ -12,46 +12,64 @@ import { setLeft, setRight, setDown } from "../redux/actions/input";
 
 // TODO Users should be able to change standard controls
 
-interface KeysMapping {
+interface CommandsMapping {
     [cmd: string]: {
+        /** action that updates actual gamestate (e.g. moving block) */
         updateAction: any;
-        inputAction: any;
-        activateWhenPaused?: boolean
+        /**
+         * @param setInput action that should be dispatched when input is pressed
+         * @param timeout time between reacting to input when holding input down
+         */
+        inputAction: {
+            setInput: any;
+            timeout: number;
+        } | null;
+        /** indicated whether cmd can be executed during pause */
+        activateWhenPaused?: boolean;
     };
 }
 
-const cmdToActionsMapping: KeysMapping = {
+const cmdToActionsMapping: CommandsMapping = {
     down: {
         updateAction: update,
-        inputAction: setDown
+        inputAction: {
+            setInput: setDown,
+            timeout: 50,
+        },
     },
     left: {
         updateAction: moveLeft,
-        inputAction: setLeft
+        inputAction: {
+            setInput: setLeft,
+            timeout: 100,
+        },
     },
     right: {
         updateAction: moveRight,
-        inputAction: setRight
+        inputAction: {
+            setInput: setRight,
+            timeout: 100,
+        },
     },
     smash: {
         updateAction: smash,
-        inputAction: null
+        inputAction: null,
     },
     rotateRight: {
         updateAction: rotateRight,
-        inputAction: null
+        inputAction: null,
     },
     reset: {
         updateAction: reset,
         inputAction: null,
-        activateWhenPaused: true
+        activateWhenPaused: true,
     },
     pause: {
         updateAction: togglePause,
         inputAction: null,
-        activateWhenPaused: true
-    }
-}
+        activateWhenPaused: true,
+    },
+};
 
 export const useInputHandler = () => {
     const dispatch = useDispatch();
@@ -62,48 +80,57 @@ export const useInputHandler = () => {
 
     const cmdToKeyMapping = useSelector<GameState, CmdMappingState>(state => {
         return state.cmdMappings;
-    })
+    });
 
     const status = useRef<GameStatus | null>(null);
 
     const keysDict = useRef<{ [key: string]: boolean }>({});
     const keysUpdateActionMapping = useRef<{ [key: string]: any }>({});
-    const keysInputActionsMapping = useRef<{ [key: string]: any }>({});
+    const keysInputActionsMapping = useRef<{
+        [key: string]: { setInput: any; timeout: number } | null;
+    }>({});
     const keysTypeMapping = useRef<{ [key: string]: any }>({});
+    const keysIntervalMapping = useRef<{ [key: string]: any }>({});
 
     useEffect(() => {
-        for(let cmdName of Object.keys(cmdToKeyMapping)) {
+        // make sure all mappings are properly initialized
+        for (let cmdName of Object.keys(cmdToKeyMapping)) {
             const key = cmdToKeyMapping[cmdName];
-            const {updateAction, inputAction, activateWhenPaused} = cmdToActionsMapping[cmdName];
+            const {
+                updateAction,
+                inputAction,
+                activateWhenPaused,
+            } = cmdToActionsMapping[cmdName];
+            
             keysUpdateActionMapping.current[key] = updateAction;
             keysInputActionsMapping.current[key] = inputAction;
             keysTypeMapping.current[key] = !!activateWhenPaused;
+            keysIntervalMapping.current[key] = {
+                intervalID: null,
+                timeoutID: null,
+            };
         }
-    }, [cmdToKeyMapping])
+    }, [cmdToKeyMapping]);
 
-
-    const interval = useRef<any | null>({});
-    const timeoutId = useRef<any | null>(null);
-
-    const resetInterval = () => {
-        if (interval.current) {
-            clearInterval(interval.current);
+    const resetInterval = (timeout: number, key: string) => {
+        const { timeoutID, intervalID } = keysIntervalMapping.current[key];
+        if (intervalID) {
+            clearInterval(intervalID);
         }
-        if (timeoutId.current) {
-            clearTimeout(timeoutId.current);
+        if (timeoutID) {
+            clearTimeout(timeoutID);
         }
-        // small timeout to avoid multiple accidental inputs
-        timeoutId.current = setTimeout(() => {
-            interval.current = setInterval(() => {
-                Object.keys(keysDict.current).forEach(key => {
-                    if (keysDict.current[key]) {
-                        const mapping = keysUpdateActionMapping.current;
-                        if (mapping[key]) {
-                            dispatch(mapping[key]());
-                        }
+
+        // small timeout before starting interval to avoid multiple accidental inputs
+        keysIntervalMapping.current[key].timeoutID = setTimeout(() => {
+            keysIntervalMapping.current[key].intervalID = setInterval(() => {
+                if (keysDict.current[key]) {
+                    const mapping = keysUpdateActionMapping.current;
+                    if (mapping[key]) {
+                        dispatch(mapping[key]());
                     }
-                });
-            }, 100);
+                }
+            }, timeout);
         }, 120);
     };
 
@@ -124,17 +151,18 @@ export const useInputHandler = () => {
                         dispatch(updateAction());
                     }
 
-                    const setInput = keysInputActionsMapping.current[event.key];
-                    if (setInput) {
+                    const inputAction = keysInputActionsMapping.current[event.key];
+                    if (inputAction) {
                         keysDict.current[event.key] = true;
-                        dispatch(setInput(true));
-                        resetInterval();
+                        dispatch(inputAction.setInput(true));
+                        resetInterval(inputAction.timeout, event.key);
                     }
                 }
             } else {
                 // game not active
                 const updateAction = keysUpdateActionMapping.current[event.key];
-                const canActivateWhenPaused = keysTypeMapping.current[event.key];
+                const canActivateWhenPaused =
+                    keysTypeMapping.current[event.key];
                 if (updateAction && canActivateWhenPaused) {
                     dispatch(updateAction());
                 }
@@ -143,9 +171,9 @@ export const useInputHandler = () => {
 
         document.addEventListener("keyup", event => {
             if (status.current === GameStatus.ACTIVE) {
-                const setInput = keysInputActionsMapping.current[event.key];
-                if (setInput) {
-                    dispatch(setInput(false));
+                const inputAction = keysInputActionsMapping.current[event.key];
+                if (inputAction) {
+                    dispatch(inputAction.setInput(false));
                     keysDict.current[event.key] = false;
                 }
             }
