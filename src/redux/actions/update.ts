@@ -11,10 +11,9 @@ function calcPoints(delRowsCount: number) {
     return delRowsCount * 100;
 }
 
-const ptsForNextLevel = 500;
-
-function nextLevelReached(points: number) {
-    return points !== 0 && ((points + POINT_INC_STEPS) % ptsForNextLevel) === 0;
+function nextLevelReached(points: number, level: number) {
+    const pointsToNextLevel = POINT_INC_STEPS * (level + 1);
+    return points !== 0 && points >= pointsToNextLevel;
 }
 
 type ThunkResult<R> = ThunkAction<R, GameState, undefined, Action>;
@@ -82,8 +81,10 @@ export function update(): ThunkResult<any> {
             );
             if(deletedRowsCount > 0) {
                 dispatch({type: 'ADD_POINTS', points: calcPoints(deletedRowsCount) })
-                                 
-                if(nextLevelReached(state.info.points)){
+               
+                // dispatched synchronous action => points are already updated here
+                const {points, level} = getState().info;
+                if(nextLevelReached(points, level)){
                     dispatch({type: 'INCREASE_LEVEL'});
                 }
             }

@@ -1,7 +1,7 @@
 import { initialState } from "../store";
 
 
-export const POINT_INC_STEPS = 100;
+export const POINT_INC_STEPS = 500;
 
 export function points(points = initialState.info.points, action: {type: string, points: number}) {
     switch(action.type) {
