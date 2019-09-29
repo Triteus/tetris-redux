@@ -37,6 +37,33 @@ export function translateBlock(
     };
 }
 
+
+function getBlockWidth(block: BlockState) {
+    let minX = Number.MAX_SAFE_INTEGER, maxX = 0;
+    for(let field of block.fields) {
+        if(field.x > maxX) {
+            maxX = field.x;
+        }
+        if(field.x < minX) {
+            minX = field.x;
+        }
+    }
+    return maxX - minX;
+}
+
+export function translateBlockToMiddle(block: BlockState, width: number, tileWidth: number): BlockState {
+    if(width < 2) {
+        throw new Error('Invalid width (must be greater than one)!');
+    }
+
+    const blockWidth = getBlockWidth(block) + tileWidth;
+   const offsetX = ((blockWidth / tileWidth) % 2) === 0 ? (blockWidth / 2) : ((blockWidth + tileWidth) / 2);
+    return {
+        fields: block.fields.map((field) => {
+            return {...field, x: field.x + (width / 2 - offsetX), y: field.y} 
+    })}
+}
+
 export function deleteFullRows(
     grid: Field[][],
     size: Vec2D,

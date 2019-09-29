@@ -1,11 +1,9 @@
 import { initialState, GameState, BlockState, GameStatus } from "../store";
 import { createRandomBlock } from "../../models/TetrisBlock";
 import {
-    deleteFullRows,
     fillGrid,
-    freezeBlockOnGrid,
+    translateBlockToMiddle,
 } from "../helpers/transform";
-import { Vec2D } from "../../models/Grid";
 import { points } from "./points";
 import { level } from "./level";
 import { input } from "./input";
@@ -29,7 +27,7 @@ export function root(state = initialState, action: any): GameState {
 
     switch (action.type) {
         case "START":
-            const { fields } = createRandomBlock(
+            const createdBlock = createRandomBlock(
                 state.tileWidth,
                 state.tileHeight,
             );
@@ -37,10 +35,7 @@ export function root(state = initialState, action: any): GameState {
                 ...state,
                 updateCounter: state.updateCounter + 1,
                 status: GameStatus.ACTIVE,
-                currBlock: {
-                    ...state.currBlock,
-                    fields,
-                },
+                currBlock: translateBlockToMiddle(createdBlock, state.width, state.tileWidth),
                 info: {
                     ...state.info,
                     nextBlock: createRandomBlock(
@@ -62,7 +57,7 @@ export function root(state = initialState, action: any): GameState {
                 ...state,
                 grid: action.updatedGrid,
                 updateCounter: state.updateCounter + 1,
-                currBlock: state.info.nextBlock,
+                currBlock: translateBlockToMiddle(state.info.nextBlock, state.width, state.tileWidth),
                 info: {
                     ...state.info,
                     placedBlocks: state.info.placedBlocks + 1,

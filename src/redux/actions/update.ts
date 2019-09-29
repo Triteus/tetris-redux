@@ -4,7 +4,7 @@ import { GameStatus, GameState } from "../store";
 import { ThunkAction } from "redux-thunk";
 import { collides, collidesBottom } from "../helpers/collision";
 import { Vec2D } from "../../models/Grid";
-import { deleteFullRows, freezeBlockOnGrid, translateBlock } from "../helpers/transform";
+import { deleteFullRows, freezeBlockOnGrid, translateBlock, translateBlockToMiddle } from "../helpers/transform";
 import { POINT_INC_STEPS } from "../reducers/points";
 import { blockTransform, BlockTransformType } from "./block-transform";
 
@@ -71,7 +71,8 @@ export function update(): ThunkResult<any> {
             collidesBottom(updatedBlock.fields, state.height)
         ) {
             // check if next block instantly collides
-            if (collides(state.info.nextBlock.fields, state.grid, new Vec2D(state.tileWidth, state.tileHeight))) {
+            const nextBlock = translateBlockToMiddle(state.info.nextBlock, state.width, state.tileWidth);
+            if (collides(nextBlock.fields, state.grid, new Vec2D(state.tileWidth, state.tileHeight))) {
                 return dispatch({type: 'GAME_OVER'});
             }  
 

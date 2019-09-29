@@ -1,4 +1,7 @@
-export function createSquareBlock(tileWidth: number, tileHeight: number) {
+import { BlockState } from "../redux/store";
+
+
+export function createSquareBlock(tileWidth: number, tileHeight: number): BlockState {
     const fields = [
         { x: 0, y: 0 },
         { x: 0, y: 1 },
@@ -10,7 +13,7 @@ export function createSquareBlock(tileWidth: number, tileHeight: number) {
     };
 }
 
-export function createTBlock(tileWidth: number, tileHeight: number) {
+export function createTBlock(tileWidth: number, tileHeight: number): BlockState {
     const fields = [
         { x: 0, y: 0 },
         { x: 1, y: 0, isCenter: true },
@@ -22,7 +25,7 @@ export function createTBlock(tileWidth: number, tileHeight: number) {
     };
 }
 
-export function createLBlock(tileWidth: number, tileHeight: number) {
+export function createLBlock(tileWidth: number, tileHeight: number): BlockState {
     const fields = [
         { x: 0, y: 0 },
         { x: 1, y: 0, isCenter: true },
@@ -34,7 +37,7 @@ export function createLBlock(tileWidth: number, tileHeight: number) {
     };
 }
 
-export function createReverseLBlock(tileWidth: number, tileHeight: number) {
+export function createReverseLBlock(tileWidth: number, tileHeight: number): BlockState {
     const fields = [
         { x: 0, y: 1 },
         { x: 0, y: 0 },
@@ -46,7 +49,7 @@ export function createReverseLBlock(tileWidth: number, tileHeight: number) {
     };
 }
 
-export function createZBlock(tileWidth: number, tileHeight: number) {
+export function createZBlock(tileWidth: number, tileHeight: number): BlockState {
     const fields = [
         { x: 0, y: 0 },
         { x: 1, y: 0, isCenter: true },
@@ -58,7 +61,7 @@ export function createZBlock(tileWidth: number, tileHeight: number) {
     };
 }
 
-export function createReverseZBlock(tileWidth: number, tileHeight: number) {
+export function createReverseZBlock(tileWidth: number, tileHeight: number): BlockState {
     const fields = [
         { x: 0, y: 1 },
         { x: 1, y: 1, isCenter: true },
@@ -71,7 +74,7 @@ export function createReverseZBlock(tileWidth: number, tileHeight: number) {
 }
 
 
-export function createIBlock(tileWidth: number, tileHeight: number) {
+export function createIBlock(tileWidth: number, tileHeight: number): BlockState {
     const fields = [
         { x: 0, y: 0 },
         { x: 1, y: 0, isCenter: true },
