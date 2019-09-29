@@ -1,23 +1,32 @@
 import { initialState, GameState, BlockState, GameStatus } from "../store";
 import { createRandomBlock } from "../../models/TetrisBlock";
 import {
-    rotateRight,
     deleteFullRows,
     fillGrid,
     freezeBlockOnGrid,
-    translateBlock,
 } from "../helpers/transform";
-import { collides, collidesBottom } from "../helpers/collision";
 import { Vec2D } from "../../models/Grid";
 import { points } from "./points";
 import { level } from "./level";
 import { input } from "./input";
+import { block } from "./block";
+import { BlockTransformType } from "../actions/block-transform";
 
 
 // TODO logic dealing with calculating new state should be placed inside action creators
 // in this way, we can dispatch more specific actions and can make use of composition of small reducers
 
 export function root(state = initialState, action: any): GameState {
+
+    // if block is translated or transformed then increase counter for rendering cycle
+    if (Object.values(BlockTransformType).includes(action.type)) {
+        return {
+            ...state,
+            updateCounter: state.updateCounter + 1,
+            currBlock: block(state.currBlock, action)
+        }
+    } 
+
     switch (action.type) {
         case "START":
             const { fields } = createRandomBlock(
@@ -40,21 +49,6 @@ export function root(state = initialState, action: any): GameState {
                     ),
                 },
             };
-        case "MOVE_DOWN_BLOCK":
-            let updatedFields = state.currBlock.fields.map(field => ({
-                ...field,
-                x: field.x,
-                y: field.y + state.tileHeight,
-            }));
-
-            return {
-                ...state,
-                updateCounter: state.updateCounter + 1,
-                currBlock: {
-                    ...state.currBlock,
-                    fields: updatedFields,
-                },
-            };
         case "GAME_OVER": {
             return {
                 ...state,
@@ -64,16 +58,9 @@ export function root(state = initialState, action: any): GameState {
             };
         }
         case "ADD_BLOCK_TO_GRID":
-            let { updatedGrid } = deleteFullRows(
-                freezeBlockOnGrid(state.grid, state.currBlock),
-                new Vec2D(state.width, state.height),
-                new Vec2D(state.tileWidth, state.tileHeight),
-            );
-        
-        
             return {
                 ...state,
-                grid: updatedGrid,
+                grid: action.updatedGrid,
                 updateCounter: state.updateCounter + 1,
                 currBlock: state.info.nextBlock,
                 info: {
@@ -85,7 +72,6 @@ export function root(state = initialState, action: any): GameState {
                     ),
                 },
             };
-
         case "PAUSE":
             return {
                 ...state,
@@ -107,72 +93,6 @@ export function root(state = initialState, action: any): GameState {
                     placedBlocks: 0,
                     time: 0,
                     level: 0,
-                },
-            };
-        case "MOVE_LEFT":
-            let blockToLeft = translateBlock(
-                state.currBlock,
-                -state.tileWidth,
-                0,
-            );
-            if (
-                blockToLeft.fields.some(f => f.x < 0) ||
-                collides(
-                    blockToLeft.fields,
-                    state.grid,
-                    new Vec2D(state.tileWidth, state.tileHeight),
-                )
-            ) {
-                return state;
-            }
-
-            return {
-                ...state,
-                updateCounter: state.updateCounter + 1,
-                currBlock: blockToLeft,
-            };
-        case "MOVE_RIGHT":
-            let blockToRight = translateBlock(
-                state.currBlock,
-                state.tileWidth,
-                0,
-            );
-            if (
-                blockToRight.fields.some(f => f.x >= state.width) ||
-                collides(
-                    blockToRight.fields,
-                    state.grid,
-                    new Vec2D(state.tileWidth, state.tileHeight),
-                )
-            ) {
-                return state;
-            }
-
-            return {
-                ...state,
-                updateCounter: state.updateCounter + 1,
-                currBlock: blockToRight,
-            };
-        case "ROTATE_RIGHT":
-            const rotatedFields = rotateRight(state.currBlock);
-
-            if (
-                collides(
-                    rotatedFields,
-                    state.grid,
-                    new Vec2D(state.tileWidth, state.tileHeight),
-                ) ||
-                collidesBottom(rotatedFields, state.height) ||
-                rotatedFields.some(f => f.x < 0 || f.x >= state.width)
-            ) {
-                return state;
-            }
-            return {
-                ...state,
-                updateCounter: state.updateCounter + 1,
-                currBlock: {
-                    ...state.currBlock,
-                    fields: rotateRight(state.currBlock),
                 },
             };
         case "UPDATE_TIME":

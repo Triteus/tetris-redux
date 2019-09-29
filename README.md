@@ -63,6 +63,6 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 - use 'proper' rotation (original tetris)
 - persist data in storage
 - add sounds
-- add some animations
+- add some animations (e.g. when deleting row)
 - add buttons as controls for mobile
 - unit and integration tests

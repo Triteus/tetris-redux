@@ -79,7 +79,6 @@ export const Grid: FC<Props> = props => {
             // no block was set
             return { fields: [] };
         }
-        debugger;
         let shadowBlock = block;
         while (
             !collides(

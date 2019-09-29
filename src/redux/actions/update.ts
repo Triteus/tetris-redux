@@ -4,8 +4,9 @@ import { GameStatus, GameState } from "../store";
 import { ThunkAction } from "redux-thunk";
 import { collides, collidesBottom } from "../helpers/collision";
 import { Vec2D } from "../../models/Grid";
-import { deleteFullRows, freezeBlockOnGrid } from "../helpers/transform";
+import { deleteFullRows, freezeBlockOnGrid, translateBlock } from "../helpers/transform";
 import { POINT_INC_STEPS } from "../reducers/points";
+import { blockTransform, BlockTransformType } from "./block-transform";
 
 function calcPoints(delRowsCount: number) {
     return delRowsCount * 100;
@@ -24,6 +25,11 @@ export function start(): Action {
     };
 }
 
+export function updateCounter(): Action {
+    return {
+        type: 'UPDATE_COUNTER'
+    }
+}
 
 let lastTimeInMillis = 0;
 
@@ -32,7 +38,6 @@ export function togglePause(): ThunkResult<any> {
         const status = getState().status;
         if (status === GameStatus.ACTIVE) {
             const timeInMillis = new Date().getTime();;
-            debugger;
             if(((timeInMillis - lastTimeInMillis) / 1000) < 0.5 ) {
                 // prevent spamming pause
                 return;
@@ -58,16 +63,12 @@ export function reset() {
 export function update(): ThunkResult<any> {
     return ((dispatch, getState) => {
         const state = getState();
-
-        let updatedFields = state.currBlock.fields.map(field => ({
-            ...field,
-            x: field.x,
-            y: field.y + state.tileHeight,
-        }));
+    
+        let updatedBlock = translateBlock(state.currBlock, 0, state.tileHeight);
 
         if (
-            collides(updatedFields, state.grid, new Vec2D(state.tileWidth, state.tileHeight)) ||
-            collidesBottom(updatedFields, state.height)
+            collides(updatedBlock.fields, state.grid, new Vec2D(state.tileWidth, state.tileHeight)) ||
+            collidesBottom(updatedBlock.fields, state.height)
         ) {
             // check if next block instantly collides
             if (collides(state.info.nextBlock.fields, state.grid, new Vec2D(state.tileWidth, state.tileHeight))) {
@@ -88,11 +89,9 @@ export function update(): ThunkResult<any> {
                     dispatch({type: 'INCREASE_LEVEL'});
                 }
             }
-            return dispatch({type: "ADD_BLOCK_TO_GRID"});
+            return dispatch({type: "ADD_BLOCK_TO_GRID", updatedGrid});
         }
-        
-
-        return dispatch({type: "MOVE_DOWN_BLOCK"});
+        return dispatch(blockTransform(BlockTransformType.MOVE_DOWN, updatedBlock));
     });
 
 }
